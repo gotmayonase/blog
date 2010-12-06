@@ -14,7 +14,7 @@ body
   -o-background-size:100% auto;
   -webkit-background-size:100% auto;
   background-attachment:fixed;
-  background-color:#222;
+  background-color:#000021;
   background-image:url('../images/background.jpg');
   background-position:center;
   background-size:100% auto;
@@ -24,7 +24,7 @@ body
 h2,h3,h4,h5,h6
 {
   font-family: "Lobster", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #333;
+  color: #000021;
 }
 
 h3
@@ -43,7 +43,7 @@ a, strong{
 
 a
 {
-  color:#000;
+  color:#000021;
   text-decoration:none;
 }
 
@@ -84,11 +84,11 @@ div#container
   -moz-border-radius:5px;
   -moz-box-shadow:0 1px 0 #fff;
   -webkit-border-radius:5px;
-  -webkit-box-shadow:0 -1px 0 #fff, 0 0 10px #222;
-  background-color:#eee;
+  -webkit-box-shadow:0 -1px 0 #fff, 0 0 10px #000021;;
+  background-color:#bbb;
   border-radius:5px;
   box-shadow:0 1px 0 #fff;
-  color:#222;
+  color:#111;
   font-size:15px;
   line-height:150%;
   opacity:0.9px;
@@ -105,7 +105,7 @@ div#content img, div#content object
   -moz-box-shadow:0 1px 0 #fff;
   -webkit-border-radius:5px;
   -webkit-box-shadow:0 1px 0 #fff;
-  border: 5px #222 solid;
+  border: 5px #000021 solid;
   width: 440px;
 }
 
@@ -169,14 +169,14 @@ div.ad{
 
 div.box{
   width: 120px;
-  background-color: #222;
+  background-color: #000021;
   padding: 10px;
   -moz-border-radius-topright:5px;
   -moz-border-radius-bottomright:5px;
   -moz-box-shadow:0 -1px 0 #444;
   -webkit-border-top-right-radius:5px;
   -webkit-border-bottom-right-radius:5px;
-  -webkit-box-shadow:0 -1px 0 #444, 0 0 10px #222;
+  -webkit-box-shadow:0 -1px 0 #444, 0 0 10px #000021;
   z-index:0;
 }
 
@@ -209,7 +209,7 @@ h1
   -moz-box-shadow:0 1px 0 #fff;
   -webkit-border-radius:5px;
   -webkit-box-shadow:0 1px 0 #fff;
-  background-color:#222;
+  background-color:#000021;
   border-radius:5px;
   box-shadow:0 1px 0 #fff;
   color:#fff;
@@ -270,9 +270,14 @@ ul.columns
   column-width:215px;
 }
 
-.small, p.date,p#footnote,p#footnote a,del,del a
+.small, p.date,p#footnote,del,del a
 {
-  color:#888;
+  color:#333;
+}
+
+p#footnote a
+{
+  color:#000021;
 }
 
 .small, p#footnote
@@ -313,7 +318,7 @@ div#content pre
   -moz-box-shadow:0 -1px 0 #444;
   -webkit-border-radius:5px;
   -webkit-box-shadow:0 -1px 0 #444;
-  background-color:#222;
+  background-color:#000016;
   color:#fff;
   font-size: 13px;
   padding: 20px;
@@ -371,7 +376,7 @@ a:hover span.balloon{
 }
 
 span.balloon{
-  background-color: #222;
+  background-color: #000021;
   color: #fff;
   font-size: 10px;
   padding:3px 5px;
