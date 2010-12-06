@@ -1,0 +1,10 @@
+---
+layout: post
+title: MiniTest Events
+excerpt: A simple event system for MiniTest to make reporting plugins easier to implement.
+published: true
+category: minitest
+---
+
+A few weeks ago I made a hack to "MiniTest":https://github.com/seattlerb/minitest to add "Fuubar-like":https://github.com/jeffkreeftmeijer/fuubar functionality.  Unfortunately the hack was a little dirty, and I wanted to make MiniTest more extendable, at least for reporting purposes.  My solution was to borrow from the Events system I wrote for "Harbor":https://github.com/wiecklabs/harbor (a web framework we wrote at my day job at Wieck Media).
+

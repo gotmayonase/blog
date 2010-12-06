@@ -1,0 +1,135 @@
+---
+layout: post
+title: MiniTest ProgressBar
+excerpt: stuff
+published: true
+category: minitest
+---
+
+<div class="text">				
+  <h3>MiniTest ProgressBar</h3>
+  <div class="text-body">
+  	<p>I was recently inspired by a <a href="http://jeffkreeftmeijer.com/2010/fuubar-the-instafailing-rspec-progress-bar-formatter/">blog post</a> I read about a new Ruby gem called <a href="https://github.com/jeffkreeftmeijer/fuubar">Fuubar</a>.  The premise of this gem is to have your RSpec tests instafail, giving an immediate backtrace when a test fails or errors; that way you don&#8217;t have to wait for all of your tests to complete before researching a problem.  It also makes use of one of my favorite gems, <a href="https://github.com/peleteiro/progressbar">ProgressBar</a>, to replace that boring standard test output of periods and letters with a progress bar.  To top it off, the output color shifts as your tests fail/error (red) or are skipped (yellow), or remains green if they all pass.  I find this test reporting to be much more informative and useful, but unfortunately we don&#8217;t use RSpec (actually it was written on RSpec 2), so if I wanted this I was going to have to come up with my own solution.</p> 
+    <p>We&#8217;ve actually only recently started really trying to integrate testing into our projects, and we&#8217;ve chosen to use <a href="https://github.com/seattlerb/minitest">MiniTest</a>.  After upgrading to the latest version (2.0.0), I had high hopes that I could just mimic the behavior of the Pride extension, replace the default MiniTest::Unit.output with my own MiniTest::ProgressBar object that would convert the lovely periods and letters into the colored progress bar I longed for.  Unfortunately I quickly discovered that MiniTest doesn&#8217;t expose any of the import things I needed, like a total count of tests being run.  </p> 
+    <p>I decided to start with a proof-of-concept (read: dirty override hack) just to be sure I could get the output I wanted from MiniTest.  What I ended up with looked something like this:</p> 
+    <p>
+      {% highlight ruby %}
+        require "minitest/unit"
+        require 'progressbar'
+
+        class MiniTest::Unit
+
+          COLORS = { :green =>  "\e[32m", :yellow => "\e[33m", :red => "\e[31m", :white => "\e[37m" }
+          @@state = nil
+
+          def _run_suites suites, type
+            @@report_count = 0
+            filter = options[:filter] || '/./'
+            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+
+            self.class.progress_bar = ProgressBar.new(type.to_s.capitalize, suites.inject(0) { |i, suite| i += suite.send("#{type}_methods").grep(filter).size })
+            suites.map { |suite| _run_suite suite, type }
+          end
+
+          def _run_suite(suite, type)
+            header = "#{type}_suite_header"
+            puts send(header, suite) if respond_to? header
+
+            filter = options[:filter] || '/./'
+            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+
+            methods = suite.send("#{type}_methods").grep(filter)
+
+            assertions = methods.map { |method|
+              inst = suite.new method
+              inst._assertions = 0
+
+              start_time = Time.now
+              result = inst.run self
+              time = Time.now - start_time
+
+              print "#{suite}##{method} = %.2f s = " % time if @verbose
+              print result
+              puts if @verbose
+
+              inst._assertions
+            }
+
+            return assertions.size, assertions.inject(0) { |sum, n| sum + n }
+          end
+
+          def print *a # :nodoc:
+            case a
+            when ["."] then
+              # do nothing
+            when ["E"] then
+              current_state = "error"
+              @@state = :red
+            when ["F"] then
+              current_state = "fail"
+              @@state = :red
+            when ["S"] then
+              current_state = "skip"
+              @@state ||= :yellow
+            else
+              # nothing
+            end
+            if report = @report.pop
+              @@report_count += 1
+              self.send("print_#{current_state}", report)
+            end
+            output.print COLORS[state]
+            progress_bar.inc
+            output.print COLORS[:white]
+          end
+
+          def state
+            @@state || :green
+          end
+
+          def progress_bar
+            self.class.progress_bar
+          end
+
+          def self.progress_bar
+            @@progress_bar ||= ProgressBar.new("Tests")
+          end
+
+          def self.progress_bar=(bar)
+            @@progress_bar = bar
+          end
+
+          private
+
+          def print_skip(report)
+            output.print COLORS[:yellow]
+            print_report(report)
+          end
+
+          def print_fail(report)
+            output.print COLORS[:red]
+            print_report(report)
+          end
+
+          def print_error(report)
+            output.print COLORS[:red]
+            print_report(report)
+          end
+
+          def print_report(report)
+            output.print "\e[K"
+            output.puts
+            output.puts "\n%3d) %s" % [@@report_count, report]
+            puts
+            output.flush
+          end
+
+        end
+      {% endhighlight %}
+    </p> 
+    <p>Like I said, it&#8217;s dirty, but it works.  What I&#8217;m left with now is an output from running my tests that looks like this:</p> 
+    <p><img src="http://grab.by/grabs/82b1d2b18ca1d648c3481f4efbf69954.png" width="488" height="340"/></p> 
+    <p>I feel satisfied with the output.  I have a colorful progress bar as well as instafailing for efficient bug stomping.</p> 
+    <p>All of this work was done in our project as a monkey-patch, but I&#8217;ve decided to try and clean this up.  So I&#8217;ve forked SeattleRB&#8217;s MiniTest on my <a href="http://github.com/gotmayonase/minitest/">GitHub account</a>, and am currently working to make this change a little cleaner.  My intention is to make the test reporting more pluggable using an event system with events being raised upon completion of individual tests, test suites, and the entire test run, that a plugin can then hook into and report in a custom manner.  As I progress further, I&#8217;ll update here with how things turn out.</p>
+  </div>
+</div> <!-- end .text -->

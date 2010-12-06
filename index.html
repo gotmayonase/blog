@@ -1,0 +1,18 @@
+---
+layout: default
+home: true
+title: Fledgling open source enthusiast and Ruby web developer @ <a href="http://wieck.com">Wieck Media</a>, Dallas, TX.
+excerpt: Mike Mayo; Fledgling open source enthusiast and Ruby web developer @ Wieck Media, Dallas, TX..
+---
+
+{% for post in site.posts limit:10 %}
+  <div class="post">
+    <h3><a href="{{ post.url }}/">{{ post.title }}</a></h3>
+    <p class="date">{{ post.date | date_to_string }}
+      {% if post.author %}
+        by <a href="http://twitter.com/{{ post.author.twitter }}" title="{{ post.author.full}}">@{{ post.author.twitter }}</a>
+      {% endif %}
+    </p>
+    <p>{{ post.excerpt }}</p>
+  </div>
+{% endfor %}
