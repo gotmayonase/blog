@@ -2,9 +2,68 @@
 layout: post
 title: MiniTest Events
 excerpt: A simple event system for MiniTest to make reporting plugins easier to implement.
-published: false
+published: true
 category: minitest
 ---
 
-A few weeks ago I made a hack to "MiniTest":https://github.com/seattlerb/minitest to add "Fuubar-like":https://github.com/jeffkreeftmeijer/fuubar functionality.  Unfortunately the hack was a little dirty, and I wanted to make MiniTest more extendable, at least for reporting purposes.  My solution was to borrow from the Events system I wrote for "Harbor":https://github.com/wiecklabs/harbor (a web framework we wrote at my day job at Wieck Media).
+A few weeks ago I made a hack to "MiniTest":https://github.com/seattlerb/minitest to add "Fuubar-like":https://github.com/jeffkreeftmeijer/fuubar functionality.  Unfortunately the hack was a little dirty, and I wanted to make MiniTest more extendable, at least for reporting purposes.  My solution was to borrow from the Events system I wrote for "Harbor":https://github.com/wiecklabs/harbor (a web framework we wrote and use at "Wieck Media":http://www.wieck.com).
 
+The concept is very simple; you just raise an event wherever you feel you need to, and pass in a context object of some kind.  Then you register an event handler, which is just a class with a call method that is executed at the time of the event raise.
+
+For example, here I am raising an event just before all of the tests begin to run:
+
+{% highlight ruby %}
+  event = RunAnythingEvent.new(self, type, suites, options)
+  
+  raise_event(:run_anything_start, event)
+{% endhighlight %}
+
+As you can see it's using a special RunAnythingEvent context object, whose definition looks like so: 
+
+{% highlight ruby %}
+  class RunAnythingEvent < BaseEvent
+    
+    attr_reader :runner, :type, :output, :suites, :options
+    attr_accessor :test_count, :assertion_count, :report, :failures, :errors, :skips
+    
+    def initialize(runner, type, suites, options)
+      super()
+      @runner = runner
+      @output = runner.output
+      @suites = suites
+      @type = type
+      @options = options
+    end
+    
+  end
+{% endhighlight%}
+
+And here is an example of an event handler for this event:
+
+{% highlight ruby %}
+  class RunAnythingStartHandler
+  
+    def initialize(event)
+      @event = event
+      @output = event.output
+      @type = event.type
+    end
+  
+    def call
+      @output.puts
+      @output.puts "# Running #{@type}s:"
+      @output.puts
+    end
+  
+  end
+{% endhighlight %}
+
+Which is registered by calling the following method off the class where the event was raised:
+
+{% highlight ruby %}
+  register_event_handler(:run_anything_start, RunAnythingStartHandler)
+{% endhighlight %}
+
+This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (<code>MiniTest::Reporting</code>) which is enabled by default.
+
+The next step, which I've already partially completed, is to create plugins that handle alternative output options like the progress bar and instafailing.  If you're interested, the work is being done in the "events branch":https://github.com/gotmayonase/minitest/tree/events on my Github account.  Assuming Node.js doesn't monopolize all my time, I hope to have it completed in the near future.  If you have any ideas, feel free to let me know.

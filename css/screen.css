@@ -51,12 +51,15 @@ a img{
   vertical-align: middle;
 }
 
-span#eighty{
-  color:#007236;
+span#wieck{
+  color:#535454;
+  font-family: Times;
 }
 
-span#beans{
-  color:#72bf44;
+span#media{
+  color:#535454;
+  font-family: 'Lucida Grande';
+  font-weight: 900;
 }
 
 a:hover, a:hover span#eighty, a:hover span#beans
@@ -106,7 +109,7 @@ div#content img, div#content object
   -webkit-border-radius:5px;
   -webkit-box-shadow:0 1px 0 #fff;
   border: 5px #000021 solid;
-  width: 440px;
+  width: 490px;
 }
 
 
@@ -303,6 +306,11 @@ hr.right
   line-height: 150%;
 }
 
+#content p > code
+{
+  font-size: 15px;
+}
+
 pre{
   white-space: pre-wrap;
   white-space: -moz-pre-wrap;
@@ -318,7 +326,7 @@ div#content pre
   -moz-box-shadow:0 -1px 0 #444;
   -webkit-border-radius:5px;
   -webkit-box-shadow:0 -1px 0 #444;
-  background-color:#000016;
+  background-color:#000020;
   color:#fff;
   font-size: 13px;
   padding: 20px;
