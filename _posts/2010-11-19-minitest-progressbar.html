@@ -6,8 +6,7 @@ published: true
 category: minitest
 ---
 
-<div class="text">				
-  <h3>MiniTest ProgressBar</h3>
+<div class="text">
   <div class="text-body">
   	<p>I was recently inspired by a <a href="http://jeffkreeftmeijer.com/2010/fuubar-the-instafailing-rspec-progress-bar-formatter/">blog post</a> I read about a new Ruby gem called <a href="https://github.com/jeffkreeftmeijer/fuubar">Fuubar</a>.  The premise of this gem is to have your RSpec tests instafail, giving an immediate backtrace when a test fails or errors; that way you don&#8217;t have to wait for all of your tests to complete before researching a problem.  It also makes use of one of my favorite gems, <a href="https://github.com/peleteiro/progressbar">ProgressBar</a>, to replace that boring standard test output of periods and letters with a progress bar.  To top it off, the output color shifts as your tests fail/error (red) or are skipped (yellow), or remains green if they all pass.  I find this test reporting to be much more informative and useful, but unfortunately we don&#8217;t use RSpec (actually it was written on RSpec 2), so if I wanted this I was going to have to come up with my own solution.</p> 
     <p>We&#8217;ve actually only recently started really trying to integrate testing into our projects, and we&#8217;ve chosen to use <a href="https://github.com/seattlerb/minitest">MiniTest</a>.  After upgrading to the latest version (2.0.0), I had high hopes that I could just mimic the behavior of the Pride extension, replace the default MiniTest::Unit.output with my own MiniTest::ProgressBar object that would convert the lovely periods and letters into the colored progress bar I longed for.  Unfortunately I quickly discovered that MiniTest doesn&#8217;t expose any of the import things I needed, like a total count of tests being run.  </p> 
