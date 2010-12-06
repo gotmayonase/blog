@@ -11,7 +11,7 @@ task :update do
    ssh.exec(
     "rm -rf #{repo} && " <<
     "git clone -q git://github.com/#{user}/#{repo}.git && " <<
-    "jekyll #{repo} _new_site --pygments && " <<
+    "/home/mike/.gem/ruby/1.8/bin/jekyll #{repo} _new_site --pygments && " <<
     "rm -rf _site && " <<
     "mv _new_site _site")
   end

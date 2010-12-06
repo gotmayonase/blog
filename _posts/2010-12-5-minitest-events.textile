@@ -2,7 +2,7 @@
 layout: post
 title: MiniTest Events
 excerpt: A simple event system for MiniTest to make reporting plugins easier to implement.
-published: true
+published: false
 category: minitest
 ---
 
