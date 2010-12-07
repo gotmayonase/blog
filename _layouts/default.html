@@ -79,33 +79,11 @@
       
     </div> <!-- end #inner -->
   </div> <!-- end #wrapper -->
-  
+  <img src="http://localhost:8000/tracking_pixel.gif" />
   <script src="/js/jquery.js" type="text/javascript"></script>
   <script type="text/javascript">
     $('.tweet').attr('href', 'http://twitter.com/share?url=' + escape(document.location) + '&via=mike_mayo&text=' + escape(document.title.split(' - ')[0]));
     $('.reddit').attr('href', 'http://reddit.com/submit?url=' + escape(document.location) + '&title=' + escape(document.title.split(' - ')[0]));
-  </script>
-  <script type="text/javascript">
-    $(function(){
-      HummingbirdTracker = {};
-
-      HummingbirdTracker.track = function(env) {
-        delete env.trackingServer;
-        delete env.trackingServerSecure;
-        env.u = document.location.href;
-        env.bw = window.innerWidth;
-        env.bh = window.innerHeight;
-        env.guid = document.cookie.match(/guid=([^\_]*)_([^;]*)/)[2];
-        env.gen = document.cookie.match(/gender=([^;]*);/)[1];
-        env.uid = document.cookie.match(/user_id=([^\_]*)_([^;]*)/)[2];
-
-        if(document.referrer && document.referrer != "") {
-          env.ref = document.referrer;
-        }
-
-        $('body').append('<img src="http://localhost:8000/tracking.gif?' + jQuery.param(env) + '"/>');
-      };
-    });
   </script>
 </body>
 </html>
