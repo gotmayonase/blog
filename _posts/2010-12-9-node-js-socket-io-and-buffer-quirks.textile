@@ -1,0 +1,9 @@
+---
+layout: post
+title: "Node.js: Socket.io and Buffer quirks"
+excerpt: Discussion of a couple oddities I ran into with socket.io and the Node Buffer object that took me a while to solve.
+published: true
+category: node
+---
+
+This is a test
