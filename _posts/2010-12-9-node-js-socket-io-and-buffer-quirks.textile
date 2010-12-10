@@ -6,4 +6,4 @@ published: true
 category: node
 ---
 
-This is a test
+This is a test of the post-receive hook.
