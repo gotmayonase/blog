@@ -1,11 +1,87 @@
 ---
 layout: post
-title: "Node.js: Socket.io and Buffer quirks"
-excerpt: Discussion of a couple oddities I ran into with socket.io and the Node Buffer object that took me a while to solve.
-published: false
+title: "Node.js: Socket.IO and Buffer quirks"
+excerpt: Discussion of a couple oddities I ran into with Socket.IO and the Node Buffer object that took me a while to solve.
+published: true
 category: node
+keywords: node.js, buffer, bug, socket.io, ~j~
 ---
 
-This is a test of the post-receive hook.  One more time
+As of late, I've been bitten by the "node.js":http://nodejs.org/ bug and have become distracted by a side-project with a co-worker.  I must admit this is my first time writing any Javascript outside of simple jQuery DOM manipulations, so it has been quite an experience for me.
 
-Final time...really
+While my co-worker has written a vast majority of the code, I finally found some free time to dive in, and one of the first things I began playing with was finding a way to stream the output of a unix process to the view.  Of course the obvious choice was to use WebSockets and "Socket.IO":Socket.IO and I quickly "found":http://stackoverflow.com/questions/3499152/minimum-websocket-nodejs-tail-example a couple "examples":http://blog.zacharyvoase.com/2010/11/11/sockets-and-nodes-i/ that made it look like it wouldn't be too hard.
+
+In my evening-long codefest, I came across two interesting quirks with Socket.IO/node that took up a majority of my time, and I thought I'd detail them here in case anyone else runs into similar issues:
+
+h4. Node Buffer
+
+We're currently using a WebWorker object to handle an out-of-request process, the output of which I want to stream to the view.  Inside the worker I created some code that looked like the following (just as an initial test for using <code>spawn</code>):
+
+{% highlight js %}
+  var my_process = spawn("command/to/run"), var stdout = "", var stderr = "";
+
+  my_process.stdout.on("data", function(data){
+    stdout += data;
+    console.log(data);
+  });
+
+  my_process.stderr.on('data', function(data){
+    stderr += data;
+    console.log(data);
+  });
+{% endhighlight %}
+
+This isn't quite exactly what it was doing, but suffice it to say that the output I got wasn't what I expected; it instead was this:
+
+{% highlight javascript%}
+  console.log('stderr: ' + data); // stderr: Expected output from my command
+  
+  // Logging the data in the view directly without string concat gave this:
+  console.log(data); // { 0: 23, 1: 82:, 3: 15, ... 60: 10, length: 61 }
+{% endhighlight %}
+
+Needless to say, I was quite confused, until I logged the output on the server side and saw this:
+
+{% highlight console %}
+  <Buffer 0a 1b 5b 31 6d 70 72 6f 6a 65 63 74 5f 74 65 73 74 1b 5b 32 32 6d 0a>
+{% endhighlight %}
+
+A short google trip later and I found "this":http://nodejs.org/api.html#buffers-2 in the node.js docs so I updated my code to call <code>data.toString('ascii')</code> and was rewarded with the output I expected.
+
+h4. Socket.IO
+
+The next time-consuming bug came when trying to stream the output from the process to the view.  The build worker that handles running the process passes the output back to the controller, which then broadcasts it via the socket to the clients.  My initial code looked something along these lines:
+
+{% highlight javascript %}
+  socket.broadcast({
+    'stdout': message.data.stdout, 
+    'stderr': message.data.stderr
+  });
+{% endhighlight %}
+
+However, I was unable to call <code>stdout</code> or <code>stderr</code> off the object passed in the broadcast, and when I logged to the browser console I found this odd output:
+
+{% highlight console %}
+  ~j~{"stdout":"This would be stdout output.","stderr":null}
+{% endhighlight %}
+
+At first glance I was confused, it looked like a JSON object or an object literal, but I had no access to any of the keys inside.  I thought to myself "The secret must lie in the '<notextile>~j~</notextile>' at the beginning," but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:
+
+{% highlight javascript %}
+  // Server-side
+  socket.broadcast(JSON.stringify({
+    'stdout': message.data.stdout, 
+    'stderr': message.data.stderr
+  }));
+  
+  //Client-side
+  socket.on('message', function(msg){
+    var data = JSON.parse(msg);
+  });
+{% endhighlight %}
+
+By doing this, I was able to access <code>stdout</code> and <code>stderr</code> off the <code>data</code> variable.  I'm still uncertain what the object originally being passed to the view was, as it was neither JSON nor an object literal, but the solution got me where I needed to be.  If anyone can explain it further, please do so; I'd love to know what's going on behind the scenes here.
+
+
+I think it highly likely that I've made some rookie mistakes here, but, as I stated before, I'm very new to Javascript so much of this is foreign to me.  I'm still trying to get past the Ruby/OO mindset and to wrap my brain around the JS way of doing things, but I'm getting there.  I'll soon be reading ??"Javascript: The Good Parts":http://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742/ref=sr_1_1?ie=UTF8&qid=1291968451&sr=8-1??, which I hope will get me over some of these newbie difficulties I'm running into.  If you have any tips or suggestions, or if you can point me towards any good guides on the subject, I'd love to hear from you.
+

@@ -406,3 +406,7 @@ img#mo{
 img#mo:hover{
   margin: -12px 0px -43px -75px;
 }
+
+cite{
+  font-style: italic;
+}
