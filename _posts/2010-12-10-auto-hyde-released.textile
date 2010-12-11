@@ -1,0 +1,35 @@
+---
+layout: post
+title: AutoHyde 0.1.1 Released
+excerpt: If you were looking for an easy way to rebuild your Jekyll site after a push to GitHub, here it is.
+published: true
+category: auto-hyde
+---
+
+With the launch of this blog, I've recently come to enjoy the wonder that is "Jekyll":https://github.com/mojombo/jekyll.  For those unfamiliar, it's a dead-simple, blog-aware, static site generator built with Ruby, and is even used by GitHub for their Pages.
+
+My only complaint has been with automating the site regeneration and deployment.  I wanted a way to easily integrate it with GitHub's post-receive hooks so that the site is pulled and regenerated on my server after any code is pushed.
+
+AutoHyde makes that all possible.  Once installed, all you need to do is run the executable (with appropriate options) and it will start up a lightweight Sinatra server with a single route, '/auto-hyde.'  Then just point your GitHub post-receive hook at <code>http://your-server.com/auto-hyde</code> and you're ready to go.
+
+Here is a list of the options available from the command-line:
+
+{% highlight console %}
+  $ auto-hyde -h
+  Usage: auto-hyde [options]
+    -e, --email EMAIL     Send email notification of failures to this email address
+    -d, --jekyll-dir DIR  Location of your Jekyll project directory, defaults to this dir
+    -b, --build-dir DIR   Location Jekyll will build your site to, defaults to './_site'
+    -p, --port PORT       Port for Sinatra to run on, defaults to 4567
+        --pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off
+    -h, --help            Show this message
+{% endhighlight %}
+
+The most important options are <code>-j</code> and <code>-b</code>, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will <code>cd</code> into your blog dir, <code>git pull</code>, and then use the <code>jekyll</code> command line to regenerate the site.
+
+The gem is already available via Gemcutter/Rubygems, just run:
+
+{% highlight console %}
+  $ gem install auto-hyde
+{% endhighlight %}
+If you're interested, the code is also up on my "GitHub repo":https://github.com/gotmayonase/auto-hyde.  I must admit that I haven't tested the email functionality yet (it uses Pony), as my ISP won't allow SMTP out.  So if anyone notices a bug there, or anywhere else, please let me know.
