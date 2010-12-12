@@ -4,6 +4,7 @@ title: AutoHyde 0.1.1 Released
 excerpt: If you were looking for an easy way to rebuild your Jekyll site after a push to GitHub, here it is.
 published: true
 category: auto-hyde
+keywords: autohyde,auto-hyde,jekyll,ruby
 ---
 
 With the launch of this blog, I've recently come to enjoy the wonder that is "Jekyll":https://github.com/mojombo/jekyll.  For those unfamiliar, it's a dead-simple, blog-aware, static site generator built with Ruby, and is even used by GitHub for their Pages.
