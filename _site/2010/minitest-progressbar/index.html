@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, ruby,tests,minitest,colors,instafail,progressbar" />
+  <meta name="description" content="A Fuubar inspired extension for MiniTest to provide a progress bar, coloring, and instafail." />
+  <title>
+    MiniTest ProgressBar -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" />
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="http://github.com/gotmayonase">Github &rarr;</a>
+            </li>
+            <li>
+              <a href="http://twitter.com/mike_mayo">Twitter &rarr;</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+        </div> <!-- end #header -->
+        <h2>MiniTest ProgressBar</h2>
+        
+
+<p class="article_date date">
+  19 Nov 2010
+</p>
+
+<hr/>
+
+<div id="content">
+	<div class="text">
+  <div class="text-body">
+  	<p>I was recently inspired by a <a href="http://jeffkreeftmeijer.com/2010/fuubar-the-instafailing-rspec-progress-bar-formatter/">blog post</a> I read about a new Ruby gem called <a href="https://github.com/jeffkreeftmeijer/fuubar">Fuubar</a>.  The premise of this gem is to have your RSpec tests instafail, giving an immediate backtrace when a test fails or errors; that way you don&#8217;t have to wait for all of your tests to complete before researching a problem.  It also makes use of one of my favorite gems, <a href="https://github.com/peleteiro/progressbar">ProgressBar</a>, to replace that boring standard test output of periods and letters with a progress bar.  To top it off, the output color shifts as your tests fail/error (red) or are skipped (yellow), or remains green if they all pass.  I find this test reporting to be much more informative and useful, but unfortunately we don&#8217;t use RSpec (actually it was written on RSpec 2), so if I wanted this I was going to have to come up with my own solution.</p> 
+    <p>We&#8217;ve actually only recently started really trying to integrate testing into our projects, and we&#8217;ve chosen to use <a href="https://github.com/seattlerb/minitest">MiniTest</a>.  After upgrading to the latest version (2.0.0), I had high hopes that I could just mimic the behavior of the Pride extension, replace the default MiniTest::Unit.output with my own MiniTest::ProgressBar object that would convert the lovely periods and letters into the colored progress bar I longed for.  Unfortunately I quickly discovered that MiniTest doesn&#8217;t expose any of the import things I needed, like a total count of tests being run.  </p> 
+    <p>I decided to start with a proof-of-concept (read: dirty override hack) just to be sure I could get the output I wanted from MiniTest.  What I ended up with looked something like this:</p> 
+    <p>
+      <div>
+  <pre>
+    <code class='ruby'>require &quot;minitest/unit&quot;
+        require 'progressbar'
+
+        class MiniTest::Unit
+
+          COLORS = { :green =&gt;  &quot;\e[32m&quot;, :yellow =&gt; &quot;\e[33m&quot;, :red =&gt; &quot;\e[31m&quot;, :white =&gt; &quot;\e[37m&quot; }
+          @@state = nil
+
+          def _run_suites suites, type
+            @@report_count = 0
+            filter = options[:filter] || '/./'
+            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+
+            self.class.progress_bar = ProgressBar.new(type.to_s.capitalize, suites.inject(0) { |i, suite| i += suite.send(&quot;#{type}_methods&quot;).grep(filter).size })
+            suites.map { |suite| _run_suite suite, type }
+          end
+
+          def _run_suite(suite, type)
+            header = &quot;#{type}_suite_header&quot;
+            puts send(header, suite) if respond_to? header
+
+            filter = options[:filter] || '/./'
+            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+
+            methods = suite.send(&quot;#{type}_methods&quot;).grep(filter)
+
+            assertions = methods.map { |method|
+              inst = suite.new method
+              inst._assertions = 0
+
+              start_time = Time.now
+              result = inst.run self
+              time = Time.now - start_time
+
+              print &quot;#{suite}##{method} = %.2f s = &quot; % time if @verbose
+              print result
+              puts if @verbose
+
+              inst._assertions
+            }
+
+            return assertions.size, assertions.inject(0) { |sum, n| sum + n }
+          end
+
+          def print *a # :nodoc:
+            case a
+            when [&quot;.&quot;] then
+              # do nothing
+            when [&quot;E&quot;] then
+              current_state = &quot;error&quot;
+              @@state = :red
+            when [&quot;F&quot;] then
+              current_state = &quot;fail&quot;
+              @@state = :red
+            when [&quot;S&quot;] then
+              current_state = &quot;skip&quot;
+              @@state ||= :yellow
+            else
+              # nothing
+            end
+            if report = @report.pop
+              @@report_count += 1
+              self.send(&quot;print_#{current_state}&quot;, report)
+            end
+            output.print COLORS[state]
+            progress_bar.inc
+            output.print COLORS[:white]
+          end
+
+          def state
+            @@state || :green
+          end
+
+          def progress_bar
+            self.class.progress_bar
+          end
+
+          def self.progress_bar
+            @@progress_bar ||= ProgressBar.new(&quot;Tests&quot;)
+          end
+
+          def self.progress_bar=(bar)
+            @@progress_bar = bar
+          end
+
+          private
+
+          def print_skip(report)
+            output.print COLORS[:yellow]
+            print_report(report)
+          end
+
+          def print_fail(report)
+            output.print COLORS[:red]
+            print_report(report)
+          end
+
+          def print_error(report)
+            output.print COLORS[:red]
+            print_report(report)
+          end
+
+          def print_report(report)
+            output.print &quot;\e[K&quot;
+            output.puts
+            output.puts &quot;\n%3d) %s&quot; % [@@report_count, report]
+            puts
+            output.flush
+          end
+
+        end</code>
+  </pre>
+</div>
+
+    </p> 
+    <p>Like I said, it&#8217;s dirty, but it works.  What I&#8217;m left with now is an output from running my tests that looks like this:</p> 
+    <p><img src="http://grab.by/grabs/82b1d2b18ca1d648c3481f4efbf69954.png" width="488" height="340"/></p> 
+    <p>I feel satisfied with the output.  I have a colorful progress bar as well as instafailing for efficient bug stomping.</p> 
+    <p>All of this work was done in our project as a monkey-patch, but I&#8217;ve decided to try and clean this up.  So I&#8217;ve forked SeattleRB&#8217;s MiniTest on my <a href="http://github.com/gotmayonase/minitest/">GitHub account</a>, and am currently working to make this change a little cleaner.  My intention is to make the test reporting more pluggable using an event system with events being raised upon completion of individual tests, test suites, and the entire test run, that a plugin can then hook into and report in a custom manner.  As I progress further, I&#8217;ll update here with how things turn out.</p>
+  </div>
+</div> <!-- end .text -->
+</div>
+
+<span class="article_buttons">
+  <a class="tweet" target="_blank">
+    <span class="balloon">tweet!</span> <img src="/images/twitter.png"/>
+  </a>
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" target="_blank">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = 'http://mikemayoblog.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="/js/hummingbird.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $('.tweet').attr('href', 'http://twitter.com/share?url=' + escape(document.location) + '&via=mike_mayo&text=' + escape(document.title.split(' - ')[0]));
+    $('.reddit').attr('href', 'http://reddit.com/submit?url=' + escape(document.location) + '&title=' + escape(document.title.split(' - ')[0]));
+    HummingbirdTracker.track({
+      site: 'mikemayo.org'
+    });
+  </script>
+</body>
+</html>

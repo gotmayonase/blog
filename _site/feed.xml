@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title>Mike Mayo</title>
+  <link href="http://mikemayo.org/feed.xml" rel="self"/>
+  <link href="http://mikemayo.org/"/>
+  <updated>2011-06-24T17:41:13-05:00</updated>
+  <id>http://mikemayo.org/</id>
+  <author>
+    <name>Jeff Mike Mayo</name>
+  </author>
+
+  
+  <entry>
+    <title type="html">AutoHyde 0.1.1 Released</title>
+    <link href="http://mikemayo.org/2010/auto-hyde-released"/>
+    <id>http://mikemayo.org/2010/auto-hyde-released</id>
+    <updated>2010-12-10T00:00:00-06:00</updated>
+    <content type="html">
+      &lt;p&gt;With the launch of this blog, I&amp;#8217;ve recently come to enjoy the wonder that is &lt;a href=&quot;https://github.com/mojombo/jekyll&quot;&gt;Jekyll&lt;/a&gt;.  For those unfamiliar, it&amp;#8217;s a dead-simple, blog-aware, static site generator built with Ruby, and is even used by GitHub for their Pages.&lt;/p&gt;
+&lt;p&gt;My only complaint has been with automating the site regeneration and deployment.  I wanted a way to easily integrate it with GitHub&amp;#8217;s post-receive hooks so that the site is pulled and regenerated on my server after any code is pushed.&lt;/p&gt;
+&lt;p&gt;AutoHyde makes that all possible.  Once installed, all you need to do is run the executable (with appropriate options) and it will start up a lightweight Sinatra server with a single route, &amp;#8216;/auto-hyde.&amp;#8217;  Then just point your GitHub post-receive hook at &lt;code&gt;http://your-server.com/auto-hyde&lt;/code&gt; and you&amp;#8217;re ready to go.&lt;/p&gt;
+&lt;p&gt;Here is a list of the options available from the command-line:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='console'&gt;$ auto-hyde -h
+Usage: auto-hyde [options]
+-e, &amp;#8212;email &lt;span class=&quot;caps&quot;&gt;EMAIL&lt;/span&gt;     Send email notification of failures to this email address
+-d, &amp;#8212;jekyll-dir &lt;span class=&quot;caps&quot;&gt;DIR&lt;/span&gt;  Location of your Jekyll project directory, defaults to this dir
+-b, &amp;#8212;build-dir &lt;span class=&quot;caps&quot;&gt;DIR&lt;/span&gt;   Location Jekyll will build your site to, defaults to &amp;#8216;./_site&amp;#8217;
+-p, &amp;#8212;port &lt;span class=&quot;caps&quot;&gt;PORT&lt;/span&gt;       Port for Sinatra to run on, defaults to 4567
+&amp;#8212;pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off
+-h, &amp;#8212;help            Show this message&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;The most important options are &lt;code&gt;-j&lt;/code&gt; and &lt;code&gt;-b&lt;/code&gt;, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will &lt;code&gt;cd&lt;/code&gt; into your blog dir, &lt;code&gt;git pull&lt;/code&gt;, and then use the &lt;code&gt;jekyll&lt;/code&gt; command line to regenerate the site.&lt;/p&gt;
+&lt;p&gt;The gem is already available via Gemcutter/Rubygems, just run:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='console'&gt;$ gem install auto-hyde&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;If you&amp;#8217;re interested, the code is also up on my &lt;a href=&quot;https://github.com/gotmayonase/auto-hyde&quot;&gt;GitHub repo&lt;/a&gt;.  I must admit that I haven&amp;#8217;t tested the email functionality yet (it uses Pony), as my &lt;span class=&quot;caps&quot;&gt;ISP&lt;/span&gt; won&amp;#8217;t allow &lt;span class=&quot;caps&quot;&gt;SMTP&lt;/span&gt; out.  So if anyone notices a bug there, or anywhere else, please let me know.&lt;/p&gt;
+    </content>
+  </entry>
+  
+  <entry>
+    <title type="html">Node.js: Socket.IO and Buffer quirks</title>
+    <link href="http://mikemayo.org/2010/node-js-socket-io-and-buffer-quirks"/>
+    <id>http://mikemayo.org/2010/node-js-socket-io-and-buffer-quirks</id>
+    <updated>2010-12-09T00:00:00-06:00</updated>
+    <content type="html">
+      &lt;p&gt;As of late, I&amp;#8217;ve been bitten by the &lt;a href=&quot;http://nodejs.org/&quot;&gt;node.js&lt;/a&gt; bug and have become distracted by a side-project with a co-worker.  I must admit this is my first time writing any Javascript outside of simple jQuery &lt;span class=&quot;caps&quot;&gt;DOM&lt;/span&gt; manipulations, so it has been quite an experience for me.&lt;/p&gt;
+&lt;p&gt;While my co-worker has written a vast majority of the code, I finally found some free time to dive in, and one of the first things I began playing with was finding a way to stream the output of a unix process to the view.  Of course the obvious choice was to use WebSockets and &lt;a href=&quot;Socket.IO&quot;&gt;Socket.IO&lt;/a&gt; and I quickly &lt;a href=&quot;http://stackoverflow.com/questions/3499152/minimum-websocket-nodejs-tail-example&quot;&gt;found&lt;/a&gt; a couple &lt;a href=&quot;http://blog.zacharyvoase.com/2010/11/11/sockets-and-nodes-i/&quot;&gt;examples&lt;/a&gt; that made it look like it wouldn&amp;#8217;t be too hard.&lt;/p&gt;
+&lt;p&gt;In my evening-long codefest, I came across two interesting quirks with Socket.IO/node that took up a majority of my time, and I thought I&amp;#8217;d detail them here in case anyone else runs into similar issues:&lt;/p&gt;
+&lt;h4&gt;Node Buffer&lt;/h4&gt;
+&lt;p&gt;We&amp;#8217;re currently using a WebWorker object to handle an out-of-request process, the output of which I want to stream to the view.  Inside the worker I created some code that looked like the following (just as an initial test for using &lt;code&gt;spawn&lt;/code&gt;):&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='js'&gt;var my_process = spawn(&amp;amp;quot;command/to/run&amp;amp;quot;), var stdout = &amp;amp;quot;&amp;amp;quot;, var stderr = &amp;amp;quot;&amp;amp;quot;;
+my_process.stdout.on(&amp;quot;data&amp;quot;, function(data){
+stdout += data;
+console.log(data);
+});
+my_process.stderr.on(&amp;#8216;data&amp;#8217;, function(data){
+stderr += data;
+console.log(data);
+});&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This isn&amp;#8217;t quite exactly what it was doing, but suffice it to say that the output I got wasn&amp;#8217;t what I expected; it instead was this:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='javascript'&gt;console.log('stderr: ' + data); // stderr: Expected output from my command
+
+// Logging the data in the view directly without string concat gave this:
+console.log(data); // { 0: 23, 1: 82:, 3: 15, &amp;#8230; 60: 10, length: 61 }&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Needless to say, I was quite confused, until I logged the output on the server side and saw this:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='console'&gt;&amp;amp;lt;Buffer 0a 1b 5b 31 6d 70 72 6f 6a 65 63 74 5f 74 65 73 74 1b 5b 32 32 6d 0a&amp;amp;gt;&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;A short google trip later and I found &lt;a href=&quot;http://nodejs.org/api.html#buffers-2&quot;&gt;this&lt;/a&gt; in the node.js docs so I updated my code to call &lt;code&gt;data.toString('ascii')&lt;/code&gt; and was rewarded with the output I expected.&lt;/p&gt;
+&lt;h4&gt;Socket.IO&lt;/h4&gt;
+&lt;p&gt;The next time-consuming bug came when trying to stream the output from the process to the view.  The build worker that handles running the process passes the output back to the controller, which then broadcasts it via the socket to the clients.  My initial code looked something along these lines:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='javascript'&gt;socket.broadcast({
+&amp;#8216;stdout&amp;#8217;: message.data.stdout,
+&amp;#8216;stderr&amp;#8217;: message.data.stderr
+});&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;However, I was unable to call &lt;code&gt;stdout&lt;/code&gt; or &lt;code&gt;stderr&lt;/code&gt; off the object passed in the broadcast, and when I logged to the browser console I found this odd output:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='console'&gt;~j~{&amp;amp;quot;stdout&amp;amp;quot;:&amp;amp;quot;This would be stdout output.&amp;amp;quot;,&amp;amp;quot;stderr&amp;amp;quot;:null}&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;At first glance I was confused, it looked like a &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; object or an object literal, but I had no access to any of the keys inside.  I thought to myself &amp;#8220;The secret must lie in the &amp;#8216;~j~&amp;#8217; at the beginning,&amp;#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='javascript'&gt;// Server-side
+socket.broadcast(&lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt;.stringify({
+&amp;#8216;stdout&amp;#8217;: message.data.stdout,
+&amp;#8216;stderr&amp;#8217;: message.data.stderr
+}));
+
+//Client-side
+socket.on(&amp;#8216;message&amp;#8217;, function(msg){
+var data = &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt;.parse(msg);
+});&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;By doing this, I was able to access &lt;code&gt;stdout&lt;/code&gt; and &lt;code&gt;stderr&lt;/code&gt; off the &lt;code&gt;data&lt;/code&gt; variable.  I&amp;#8217;m still uncertain what the object originally being passed to the view was, as it was neither &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; nor an object literal, but the solution got me where I needed to be.  If anyone can explain it further, please do so; I&amp;#8217;d love to know what&amp;#8217;s going on behind the scenes here.&lt;/p&gt;
+&lt;p&gt;I think it highly likely that I&amp;#8217;ve made some rookie mistakes here, but, as I stated before, I&amp;#8217;m very new to Javascript so much of this is foreign to me.  I&amp;#8217;m still trying to get past the Ruby/OO mindset and to wrap my brain around the JS way of doing things, but I&amp;#8217;m getting there.  I&amp;#8217;ll soon be reading &lt;cite&gt;&lt;a href=&quot;http://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742/ref=sr_1_1?ie=UTF8&amp;amp;qid=1291968451&amp;amp;sr=8-1&quot;&gt;Javascript: The Good Parts&lt;/a&gt;&lt;/cite&gt;, which I hope will get me over some of these newbie difficulties I&amp;#8217;m running into.  If you have any tips or suggestions, or if you can point me towards any good guides on the subject, I&amp;#8217;d love to hear from you.&lt;/p&gt;
+    </content>
+  </entry>
+  
+  <entry>
+    <title type="html">MiniTest Events</title>
+    <link href="http://mikemayo.org/2010/minitest-events"/>
+    <id>http://mikemayo.org/2010/minitest-events</id>
+    <updated>2010-12-05T00:00:00-06:00</updated>
+    <content type="html">
+      &lt;p&gt;A few weeks ago I made a hack to &lt;a href=&quot;https://github.com/seattlerb/minitest&quot;&gt;MiniTest&lt;/a&gt; to add &lt;a href=&quot;https://github.com/jeffkreeftmeijer/fuubar&quot;&gt;Fuubar-like&lt;/a&gt; functionality.  Unfortunately the hack was a little dirty, and I wanted to make MiniTest more extendable, at least for reporting purposes.  My solution was to borrow from the Events system I wrote for &lt;a href=&quot;https://github.com/wiecklabs/harbor&quot;&gt;Harbor&lt;/a&gt; (a web framework we wrote and use at &lt;a href=&quot;http://www.wieck.com&quot;&gt;Wieck Media&lt;/a&gt;).&lt;/p&gt;
+&lt;p&gt;The concept is very simple; you just raise an event wherever you feel you need to, and pass in a context object of some kind.  Then you register an event handler, which is just a class with a call method that is executed at the time of the event raise.&lt;/p&gt;
+&lt;p&gt;For example, here I am raising an event just before all of the tests begin to run:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='ruby'&gt;event = RunAnythingEvent.new(self, type, suites, options)
+
+raise_event(:run_anything_start, event)&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;As you can see it&amp;#8217;s using a special RunAnythingEvent context object, whose definition looks like so:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='ruby'&gt;class RunAnythingEvent &amp;amp;lt; BaseEvent
+
+attr_reader :runner, :type, :output, :suites, :options
+attr_accessor :test_count, :assertion_count, :report, :failures, :errors, :skips
+
+def initialize(runner, type, suites, options)
+super()
+@runner = runner
+@output = runner.output
+@suites = suites
+@type = type
+@options = options
+end
+
+end&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;And here is an example of an event handler for this event:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='ruby'&gt;class RunAnythingStartHandler
+
+def initialize(event)
+@event = event
+@output = event.output
+@type = event.type
+end
+
+def call
+@output.puts
+&lt;code&gt;output.puts &amp;amp;quot;# Running #{&lt;/code&gt;type}s:&amp;quot;
+@output.puts
+end
+
+end&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;Which is registered by calling the following method off the class where the event was raised:&lt;/p&gt;
+&lt;div&gt;
+&lt;pre&gt;
+&lt;code class='ruby'&gt;register_event_handler(:run_anything_start, RunAnythingStartHandler)&lt;/code&gt;
+&lt;/pre&gt;
+&lt;/div&gt;
+&lt;p&gt;This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (&lt;code&gt;MiniTest::Reporting&lt;/code&gt;) which is enabled by default.&lt;/p&gt;
+&lt;p&gt;The next step, which I&amp;#8217;ve already partially completed, is to create plugins that handle alternative output options like the progress bar and instafailing.  If you&amp;#8217;re interested, the work is being done in the &lt;a href=&quot;https://github.com/gotmayonase/minitest/tree/events&quot;&gt;events branch&lt;/a&gt; on my Github account.  Assuming Node.js doesn&amp;#8217;t monopolize all my time, I hope to have it completed in the near future.  If you have any ideas, feel free to let me know.&lt;/p&gt;
+    </content>
+  </entry>
+  
+  <entry>
+    <title type="html">MiniTest ProgressBar</title>
+    <link href="http://mikemayo.org/2010/minitest-progressbar"/>
+    <id>http://mikemayo.org/2010/minitest-progressbar</id>
+    <updated>2010-11-19T00:00:00-06:00</updated>
+    <content type="html">
+      &lt;div class=&quot;text&quot;&gt;
+  &lt;div class=&quot;text-body&quot;&gt;
+  	&lt;p&gt;I was recently inspired by a &lt;a href=&quot;http://jeffkreeftmeijer.com/2010/fuubar-the-instafailing-rspec-progress-bar-formatter/&quot;&gt;blog post&lt;/a&gt; I read about a new Ruby gem called &lt;a href=&quot;https://github.com/jeffkreeftmeijer/fuubar&quot;&gt;Fuubar&lt;/a&gt;.  The premise of this gem is to have your RSpec tests instafail, giving an immediate backtrace when a test fails or errors; that way you don&amp;#8217;t have to wait for all of your tests to complete before researching a problem.  It also makes use of one of my favorite gems, &lt;a href=&quot;https://github.com/peleteiro/progressbar&quot;&gt;ProgressBar&lt;/a&gt;, to replace that boring standard test output of periods and letters with a progress bar.  To top it off, the output color shifts as your tests fail/error (red) or are skipped (yellow), or remains green if they all pass.  I find this test reporting to be much more informative and useful, but unfortunately we don&amp;#8217;t use RSpec (actually it was written on RSpec 2), so if I wanted this I was going to have to come up with my own solution.&lt;/p&gt; 
+    &lt;p&gt;We&amp;#8217;ve actually only recently started really trying to integrate testing into our projects, and we&amp;#8217;ve chosen to use &lt;a href=&quot;https://github.com/seattlerb/minitest&quot;&gt;MiniTest&lt;/a&gt;.  After upgrading to the latest version (2.0.0), I had high hopes that I could just mimic the behavior of the Pride extension, replace the default MiniTest::Unit.output with my own MiniTest::ProgressBar object that would convert the lovely periods and letters into the colored progress bar I longed for.  Unfortunately I quickly discovered that MiniTest doesn&amp;#8217;t expose any of the import things I needed, like a total count of tests being run.  &lt;/p&gt; 
+    &lt;p&gt;I decided to start with a proof-of-concept (read: dirty override hack) just to be sure I could get the output I wanted from MiniTest.  What I ended up with looked something like this:&lt;/p&gt; 
+    &lt;p&gt;
+      &lt;div&gt;
+  &lt;pre&gt;
+    &lt;code class='ruby'&gt;require &amp;quot;minitest/unit&amp;quot;
+        require 'progressbar'
+
+        class MiniTest::Unit
+
+          COLORS = { :green =&amp;gt;  &amp;quot;\e[32m&amp;quot;, :yellow =&amp;gt; &amp;quot;\e[33m&amp;quot;, :red =&amp;gt; &amp;quot;\e[31m&amp;quot;, :white =&amp;gt; &amp;quot;\e[37m&amp;quot; }
+          @@state = nil
+
+          def _run_suites suites, type
+            @@report_count = 0
+            filter = options[:filter] || '/./'
+            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+
+            self.class.progress_bar = ProgressBar.new(type.to_s.capitalize, suites.inject(0) { |i, suite| i += suite.send(&amp;quot;#{type}_methods&amp;quot;).grep(filter).size })
+            suites.map { |suite| _run_suite suite, type }
+          end
+
+          def _run_suite(suite, type)
+            header = &amp;quot;#{type}_suite_header&amp;quot;
+            puts send(header, suite) if respond_to? header
+
+            filter = options[:filter] || '/./'
+            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+
+            methods = suite.send(&amp;quot;#{type}_methods&amp;quot;).grep(filter)
+
+            assertions = methods.map { |method|
+              inst = suite.new method
+              inst._assertions = 0
+
+              start_time = Time.now
+              result = inst.run self
+              time = Time.now - start_time
+
+              print &amp;quot;#{suite}##{method} = %.2f s = &amp;quot; % time if @verbose
+              print result
+              puts if @verbose
+
+              inst._assertions
+            }
+
+            return assertions.size, assertions.inject(0) { |sum, n| sum + n }
+          end
+
+          def print *a # :nodoc:
+            case a
+            when [&amp;quot;.&amp;quot;] then
+              # do nothing
+            when [&amp;quot;E&amp;quot;] then
+              current_state = &amp;quot;error&amp;quot;
+              @@state = :red
+            when [&amp;quot;F&amp;quot;] then
+              current_state = &amp;quot;fail&amp;quot;
+              @@state = :red
+            when [&amp;quot;S&amp;quot;] then
+              current_state = &amp;quot;skip&amp;quot;
+              @@state ||= :yellow
+            else
+              # nothing
+            end
+            if report = @report.pop
+              @@report_count += 1
+              self.send(&amp;quot;print_#{current_state}&amp;quot;, report)
+            end
+            output.print COLORS[state]
+            progress_bar.inc
+            output.print COLORS[:white]
+          end
+
+          def state
+            @@state || :green
+          end
+
+          def progress_bar
+            self.class.progress_bar
+          end
+
+          def self.progress_bar
+            @@progress_bar ||= ProgressBar.new(&amp;quot;Tests&amp;quot;)
+          end
+
+          def self.progress_bar=(bar)
+            @@progress_bar = bar
+          end
+
+          private
+
+          def print_skip(report)
+            output.print COLORS[:yellow]
+            print_report(report)
+          end
+
+          def print_fail(report)
+            output.print COLORS[:red]
+            print_report(report)
+          end
+
+          def print_error(report)
+            output.print COLORS[:red]
+            print_report(report)
+          end
+
+          def print_report(report)
+            output.print &amp;quot;\e[K&amp;quot;
+            output.puts
+            output.puts &amp;quot;\n%3d) %s&amp;quot; % [@@report_count, report]
+            puts
+            output.flush
+          end
+
+        end&lt;/code&gt;
+  &lt;/pre&gt;
+&lt;/div&gt;
+
+    &lt;/p&gt; 
+    &lt;p&gt;Like I said, it&amp;#8217;s dirty, but it works.  What I&amp;#8217;m left with now is an output from running my tests that looks like this:&lt;/p&gt; 
+    &lt;p&gt;&lt;img src=&quot;http://grab.by/grabs/82b1d2b18ca1d648c3481f4efbf69954.png&quot; width=&quot;488&quot; height=&quot;340&quot;/&gt;&lt;/p&gt; 
+    &lt;p&gt;I feel satisfied with the output.  I have a colorful progress bar as well as instafailing for efficient bug stomping.&lt;/p&gt; 
+    &lt;p&gt;All of this work was done in our project as a monkey-patch, but I&amp;#8217;ve decided to try and clean this up.  So I&amp;#8217;ve forked SeattleRB&amp;#8217;s MiniTest on my &lt;a href=&quot;http://github.com/gotmayonase/minitest/&quot;&gt;GitHub account&lt;/a&gt;, and am currently working to make this change a little cleaner.  My intention is to make the test reporting more pluggable using an event system with events being raised upon completion of individual tests, test suites, and the entire test run, that a plugin can then hook into and report in a custom manner.  As I progress further, I&amp;#8217;ll update here with how things turn out.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt; &lt;!-- end .text --&gt;
+    </content>
+  </entry>
+  
+</feed>

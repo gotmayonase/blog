@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, node.js, buffer, bug, socket.io, ~j~" />
+  <meta name="description" content="Discussion of a couple oddities I ran into with Socket.IO and the Node Buffer object that took me a while to solve." />
+  <title>
+    Node.js: Socket.IO and Buffer quirks -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" />
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="http://github.com/gotmayonase">Github &rarr;</a>
+            </li>
+            <li>
+              <a href="http://twitter.com/mike_mayo">Twitter &rarr;</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+        </div> <!-- end #header -->
+        <h2>Node.js: Socket.IO and Buffer quirks</h2>
+        
+
+<p class="article_date date">
+  09 Dec 2010
+</p>
+
+<hr/>
+
+<div id="content">
+	<p>As of late, I&#8217;ve been bitten by the <a href="http://nodejs.org/">node.js</a> bug and have become distracted by a side-project with a co-worker.  I must admit this is my first time writing any Javascript outside of simple jQuery <span class="caps">DOM</span> manipulations, so it has been quite an experience for me.</p>
+<p>While my co-worker has written a vast majority of the code, I finally found some free time to dive in, and one of the first things I began playing with was finding a way to stream the output of a unix process to the view.  Of course the obvious choice was to use WebSockets and <a href="Socket.IO">Socket.IO</a> and I quickly <a href="http://stackoverflow.com/questions/3499152/minimum-websocket-nodejs-tail-example">found</a> a couple <a href="http://blog.zacharyvoase.com/2010/11/11/sockets-and-nodes-i/">examples</a> that made it look like it wouldn&#8217;t be too hard.</p>
+<p>In my evening-long codefest, I came across two interesting quirks with Socket.IO/node that took up a majority of my time, and I thought I&#8217;d detail them here in case anyone else runs into similar issues:</p>
+<h4>Node Buffer</h4>
+<p>We&#8217;re currently using a WebWorker object to handle an out-of-request process, the output of which I want to stream to the view.  Inside the worker I created some code that looked like the following (just as an initial test for using <code>spawn</code>):</p>
+<div>
+<pre>
+<code class='js'>var my_process = spawn(&amp;quot;command/to/run&amp;quot;), var stdout = &amp;quot;&amp;quot;, var stderr = &amp;quot;&amp;quot;;
+my_process.stdout.on(&quot;data&quot;, function(data){
+stdout += data;
+console.log(data);
+});
+my_process.stderr.on(&#8216;data&#8217;, function(data){
+stderr += data;
+console.log(data);
+});</code>
+</pre>
+</div>
+<p>This isn&#8217;t quite exactly what it was doing, but suffice it to say that the output I got wasn&#8217;t what I expected; it instead was this:</p>
+<div>
+<pre>
+<code class='javascript'>console.log('stderr: ' + data); // stderr: Expected output from my command
+
+// Logging the data in the view directly without string concat gave this:
+console.log(data); // { 0: 23, 1: 82:, 3: 15, &#8230; 60: 10, length: 61 }</code>
+</pre>
+</div>
+<p>Needless to say, I was quite confused, until I logged the output on the server side and saw this:</p>
+<div>
+<pre>
+<code class='console'>&amp;lt;Buffer 0a 1b 5b 31 6d 70 72 6f 6a 65 63 74 5f 74 65 73 74 1b 5b 32 32 6d 0a&amp;gt;</code>
+</pre>
+</div>
+<p>A short google trip later and I found <a href="http://nodejs.org/api.html#buffers-2">this</a> in the node.js docs so I updated my code to call <code>data.toString('ascii')</code> and was rewarded with the output I expected.</p>
+<h4>Socket.IO</h4>
+<p>The next time-consuming bug came when trying to stream the output from the process to the view.  The build worker that handles running the process passes the output back to the controller, which then broadcasts it via the socket to the clients.  My initial code looked something along these lines:</p>
+<div>
+<pre>
+<code class='javascript'>socket.broadcast({
+&#8216;stdout&#8217;: message.data.stdout,
+&#8216;stderr&#8217;: message.data.stderr
+});</code>
+</pre>
+</div>
+<p>However, I was unable to call <code>stdout</code> or <code>stderr</code> off the object passed in the broadcast, and when I logged to the browser console I found this odd output:</p>
+<div>
+<pre>
+<code class='console'>~j~{&amp;quot;stdout&amp;quot;:&amp;quot;This would be stdout output.&amp;quot;,&amp;quot;stderr&amp;quot;:null}</code>
+</pre>
+</div>
+<p>At first glance I was confused, it looked like a <span class="caps">JSON</span> object or an object literal, but I had no access to any of the keys inside.  I thought to myself &#8220;The secret must lie in the &#8216;~j~&#8217; at the beginning,&#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:</p>
+<div>
+<pre>
+<code class='javascript'>// Server-side
+socket.broadcast(<span class="caps">JSON</span>.stringify({
+&#8216;stdout&#8217;: message.data.stdout,
+&#8216;stderr&#8217;: message.data.stderr
+}));
+
+//Client-side
+socket.on(&#8216;message&#8217;, function(msg){
+var data = <span class="caps">JSON</span>.parse(msg);
+});</code>
+</pre>
+</div>
+<p>By doing this, I was able to access <code>stdout</code> and <code>stderr</code> off the <code>data</code> variable.  I&#8217;m still uncertain what the object originally being passed to the view was, as it was neither <span class="caps">JSON</span> nor an object literal, but the solution got me where I needed to be.  If anyone can explain it further, please do so; I&#8217;d love to know what&#8217;s going on behind the scenes here.</p>
+<p>I think it highly likely that I&#8217;ve made some rookie mistakes here, but, as I stated before, I&#8217;m very new to Javascript so much of this is foreign to me.  I&#8217;m still trying to get past the Ruby/OO mindset and to wrap my brain around the JS way of doing things, but I&#8217;m getting there.  I&#8217;ll soon be reading <cite><a href="http://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742/ref=sr_1_1?ie=UTF8&amp;qid=1291968451&amp;sr=8-1">Javascript: The Good Parts</a></cite>, which I hope will get me over some of these newbie difficulties I&#8217;m running into.  If you have any tips or suggestions, or if you can point me towards any good guides on the subject, I&#8217;d love to hear from you.</p>
+</div>
+
+<span class="article_buttons">
+  <a class="tweet" target="_blank">
+    <span class="balloon">tweet!</span> <img src="/images/twitter.png"/>
+  </a>
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" target="_blank">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = 'http://mikemayoblog.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="/js/hummingbird.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $('.tweet').attr('href', 'http://twitter.com/share?url=' + escape(document.location) + '&via=mike_mayo&text=' + escape(document.title.split(' - ')[0]));
+    $('.reddit').attr('href', 'http://reddit.com/submit?url=' + escape(document.location) + '&title=' + escape(document.title.split(' - ')[0]));
+    HummingbirdTracker.track({
+      site: 'mikemayo.org'
+    });
+  </script>
+</body>
+</html>

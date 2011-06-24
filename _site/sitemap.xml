@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <url>
+      <loc>http://mikemayo.org/</loc>
+      <lastmod>2011-06-24</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>1</priority>
+   </url>
+   <url>
+      <loc>http://mikemayo.org/projects/</loc>
+      <lastmod>2011-06-24</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/auto-hyde-released/</loc>
+      <lastmod>2010-12-10</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/node-js-socket-io-and-buffer-quirks/</loc>
+      <lastmod>2010-12-09</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/minitest-events/</loc>
+      <lastmod>2010-12-05</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/minitest-progressbar/</loc>
+      <lastmod>2010-11-19</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+</urlset>
