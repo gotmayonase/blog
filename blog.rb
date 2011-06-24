@@ -1,6 +1,6 @@
 require 'sinatra'
 
-set :public, Proc.new { "_site" }
+set :public, Proc.new { File.join(root, "_site") }
 
 # This before filter ensures that your pages are only ever served 
 # once (per deploy) by Sinatra, and then by Varnish after that

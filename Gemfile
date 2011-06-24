@@ -1,4 +1,5 @@
 source :rubygems
 
-gem 'sinatra'
-gem 'masquerade'
+# gem 'sinatra'
+# gem 'masquerade'
+gem 'rack-jekyll'
