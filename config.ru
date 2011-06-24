@@ -1,2 +1,2 @@
-require 'masquerade'
+require './blog'
 run Sinatra::Application
