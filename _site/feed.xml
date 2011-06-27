@@ -4,7 +4,7 @@
   <title>Mike Mayo</title>
   <link href="http://mikemayo.org/feed.xml" rel="self"/>
   <link href="http://mikemayo.org/"/>
-  <updated>2011-06-24T19:06:21-05:00</updated>
+  <updated>2011-06-27T10:00:58-05:00</updated>
   <id>http://mikemayo.org/</id>
   <author>
     <name>Jeff Mike Mayo</name>
@@ -57,8 +57,8 @@ Usage: auto-hyde [options]
 &lt;p&gt;We&amp;#8217;re currently using a WebWorker object to handle an out-of-request process, the output of which I want to stream to the view.  Inside the worker I created some code that looked like the following (just as an initial test for using &lt;code&gt;spawn&lt;/code&gt;):&lt;/p&gt;
 &lt;div&gt;
 &lt;pre&gt;
-&lt;code class='js'&gt;var my_process = spawn(&amp;amp;quot;command/to/run&amp;amp;quot;), var stdout = &amp;amp;quot;&amp;amp;quot;, var stderr = &amp;amp;quot;&amp;amp;quot;;
-my_process.stdout.on(&amp;quot;data&amp;quot;, function(data){
+&lt;code class='js'&gt;var my_process = spawn('command/to/run'), var stdout = '', var stderr = '';
+my_process.stdout.on(&amp;#8216;data&amp;#8217;, function(data){
 stdout += data;
 console.log(data);
 });
@@ -97,7 +97,7 @@ console.log(data); // { 0: 23, 1: 82:, 3: 15, &amp;#8230; 60: 10, length: 61 }&l
 &lt;p&gt;However, I was unable to call &lt;code&gt;stdout&lt;/code&gt; or &lt;code&gt;stderr&lt;/code&gt; off the object passed in the broadcast, and when I logged to the browser console I found this odd output:&lt;/p&gt;
 &lt;div&gt;
 &lt;pre&gt;
-&lt;code class='console'&gt;~j~{&amp;amp;quot;stdout&amp;amp;quot;:&amp;amp;quot;This would be stdout output.&amp;amp;quot;,&amp;amp;quot;stderr&amp;amp;quot;:null}&lt;/code&gt;
+&lt;code class='console'&gt;~j~{'stdout':'This would be stdout output.','stderr':null}&lt;/code&gt;
 &lt;/pre&gt;
 &lt;/div&gt;
 &lt;p&gt;At first glance I was confused, it looked like a &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; object or an object literal, but I had no access to any of the keys inside.  I thought to myself &amp;#8220;The secret must lie in the &amp;#8216;~j~&amp;#8217; at the beginning,&amp;#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:&lt;/p&gt;

@@ -18,9 +18,9 @@ h4. Node Buffer
 We're currently using a WebWorker object to handle an out-of-request process, the output of which I want to stream to the view.  Inside the worker I created some code that looked like the following (just as an initial test for using <code>spawn</code>):
 
 {% highlight js %}
-  var my_process = spawn("command/to/run"), var stdout = "", var stderr = "";
+  var my_process = spawn('command/to/run'), var stdout = '', var stderr = '';
 
-  my_process.stdout.on("data", function(data){
+  my_process.stdout.on('data', function(data){
     stdout += data;
     console.log(data);
   });
@@ -62,7 +62,7 @@ The next time-consuming bug came when trying to stream the output from the proce
 However, I was unable to call <code>stdout</code> or <code>stderr</code> off the object passed in the broadcast, and when I logged to the browser console I found this odd output:
 
 {% highlight console %}
-  ~j~{"stdout":"This would be stdout output.","stderr":null}
+  ~j~{'stdout':'This would be stdout output.','stderr':null}
 {% endhighlight %}
 
 At first glance I was confused, it looked like a JSON object or an object literal, but I had no access to any of the keys inside.  I thought to myself "The secret must lie in the '<notextile>~j~</notextile>' at the beginning," but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:

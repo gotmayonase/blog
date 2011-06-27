@@ -75,8 +75,8 @@
 <p>We&#8217;re currently using a WebWorker object to handle an out-of-request process, the output of which I want to stream to the view.  Inside the worker I created some code that looked like the following (just as an initial test for using <code>spawn</code>):</p>
 <div>
 <pre>
-<code class='js'>var my_process = spawn(&amp;quot;command/to/run&amp;quot;), var stdout = &amp;quot;&amp;quot;, var stderr = &amp;quot;&amp;quot;;
-my_process.stdout.on(&quot;data&quot;, function(data){
+<code class='js'>var my_process = spawn('command/to/run'), var stdout = '', var stderr = '';
+my_process.stdout.on(&#8216;data&#8217;, function(data){
 stdout += data;
 console.log(data);
 });
@@ -115,7 +115,7 @@ console.log(data); // { 0: 23, 1: 82:, 3: 15, &#8230; 60: 10, length: 61 }</code
 <p>However, I was unable to call <code>stdout</code> or <code>stderr</code> off the object passed in the broadcast, and when I logged to the browser console I found this odd output:</p>
 <div>
 <pre>
-<code class='console'>~j~{&amp;quot;stdout&amp;quot;:&amp;quot;This would be stdout output.&amp;quot;,&amp;quot;stderr&amp;quot;:null}</code>
+<code class='console'>~j~{'stdout':'This would be stdout output.','stderr':null}</code>
 </pre>
 </div>
 <p>At first glance I was confused, it looked like a <span class="caps">JSON</span> object or an object literal, but I had no access to any of the keys inside.  I thought to myself &#8220;The secret must lie in the &#8216;~j~&#8217; at the beginning,&#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:</p>
@@ -179,13 +179,5 @@ var data = <span class="caps">JSON</span>.parse(msg);
   </div> <!-- end #wrapper -->
 
   <script src="/js/jquery.js" type="text/javascript"></script>
-  <script src="/js/hummingbird.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    $('.tweet').attr('href', 'http://twitter.com/share?url=' + escape(document.location) + '&via=mike_mayo&text=' + escape(document.title.split(' - ')[0]));
-    $('.reddit').attr('href', 'http://reddit.com/submit?url=' + escape(document.location) + '&title=' + escape(document.title.split(' - ')[0]));
-    HummingbirdTracker.track({
-      site: 'mikemayo.org'
-    });
-  </script>
 </body>
 </html>
