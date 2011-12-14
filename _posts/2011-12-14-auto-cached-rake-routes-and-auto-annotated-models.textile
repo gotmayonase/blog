@@ -7,7 +7,7 @@ category:
 keywords: rake,routes,cached,annotate,rails
 ---
 
-If you've spent any time developing a Rails application, you're likely familiar with the command `rake routes`. If you're not, this little marvel will greatly simplify you dev experience, as it prints out all the available routes in your application and their associated path helpers.
+If you've spent any time developing a Rails application, you're likely familiar with the command @rake routes@. If you're not, this little marvel will greatly simplify your dev experience, as it prints out all the available routes in your application and their associated path helpers.
 
 However, as of late it has slowed down considerably.  I'm not sure if it was with the changes in Ruby 1.9.2 or Rails 3, but running that command will take a ridiculous amount of time depending on the complexity of your project.
 
