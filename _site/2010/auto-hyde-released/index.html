@@ -55,6 +55,9 @@
             <li>
               <a href="/contact">Contact</a>
             </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
           </ul>
           <hr class="right"/>
         </div> <!-- end #header -->
@@ -72,26 +75,20 @@
 <p>My only complaint has been with automating the site regeneration and deployment.  I wanted a way to easily integrate it with GitHub&#8217;s post-receive hooks so that the site is pulled and regenerated on my server after any code is pushed.</p>
 <p>AutoHyde makes that all possible.  Once installed, all you need to do is run the executable (with appropriate options) and it will start up a lightweight Sinatra server with a single route, &#8216;/auto-hyde.&#8217;  Then just point your GitHub post-receive hook at <code>http://your-server.com/auto-hyde</code> and you&#8217;re ready to go.</p>
 <p>Here is a list of the options available from the command-line:</p>
-<div>
-<pre>
-<code class='console'>$ auto-hyde -h
-Usage: auto-hyde [options]
--e, &#8212;email <span class="caps">EMAIL</span>     Send email notification of failures to this email address
--d, &#8212;jekyll-dir <span class="caps">DIR</span>  Location of your Jekyll project directory, defaults to this dir
--b, &#8212;build-dir <span class="caps">DIR</span>   Location Jekyll will build your site to, defaults to &#8216;./_site&#8217;
--p, &#8212;port <span class="caps">PORT</span>       Port for Sinatra to run on, defaults to 4567
-&#8212;pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off
--h, &#8212;help            Show this message</code>
-</pre>
-</div>
-<p>The most important options are <code>-j</code> and <code>-b</code>, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will <code>cd</code> into your blog dir, <code>git pull</code>, and then use the <code>jekyll</code> command line to regenerate the site.</p>
+<div class="highlight"><pre><code class="console"><span class="go">  $ auto-hyde -h</span>
+<span class="go">  Usage: auto-hyde [options]</span>
+<span class="go">    -e, --email EMAIL     Send email notification of failures to this email address</span>
+<span class="go">    -d, --jekyll-dir DIR  Location of your Jekyll project directory, defaults to this dir</span>
+<span class="go">    -b, --build-dir DIR   Location Jekyll will build your site to, defaults to &#39;./_site&#39;</span>
+<span class="go">    -p, --port PORT       Port for Sinatra to run on, defaults to 4567</span>
+<span class="go">        --pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off</span>
+<span class="go">    -h, --help            Show this message</span>
+</code></pre>
+</div><p>The most important options are <code>-j</code> and <code>-b</code>, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will <code>cd</code> into your blog dir, <code>git pull</code>, and then use the <code>jekyll</code> command line to regenerate the site.</p>
 <p>The gem is already available via Gemcutter/Rubygems, just run:</p>
-<div>
-<pre>
-<code class='console'>$ gem install auto-hyde</code>
-</pre>
-</div>
-<p>If you&#8217;re interested, the code is also up on my <a href="https://github.com/gotmayonase/auto-hyde">GitHub repo</a>.  I must admit that I haven&#8217;t tested the email functionality yet (it uses Pony), as my <span class="caps">ISP</span> won&#8217;t allow <span class="caps">SMTP</span> out.  So if anyone notices a bug there, or anywhere else, please let me know.</p>
+<div class="highlight"><pre><code class="console"><span class="go">  $ gem install auto-hyde</span>
+</code></pre>
+</div><p>If you&#8217;re interested, the code is also up on my <a href="https://github.com/gotmayonase/auto-hyde">GitHub repo</a>.  I must admit that I haven&#8217;t tested the email functionality yet (it uses Pony), as my <span class="caps">ISP</span> won&#8217;t allow <span class="caps">SMTP</span> out.  So if anyone notices a bug there, or anywhere else, please let me know.</p>
 </div>
 
 <span class="article_buttons">

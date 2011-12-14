@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Mike Mayo</title>
+    <style type="text/css" media="screen">
+      body{ margin:0 auto; font:16px/24px Tahoma; background-color: #ddd;}
+      #content { width:960px; background:none repeat scroll 0 0 #F4EAAC; margin: 0 auto; padding: 20px;}
+      h1,h2,h3,h4,h5,h6{font:normal 16px/24px Tahoma; margin:0; }
+      a:hover { color: green;}
+      section, article, header{display:block}        
+        section{position:relative; overflow:auto; margin:0 0 20px; border-top: 1px solid #ccc; padding-top: 20px;}  
+        section header{position:absolute; top:20px; left:0; color:#888;}
+          article{margin:0 0 0 140px; position:relative}
+          article header{left:auto; right:0; top:0; text-align:right; clear:left; color:green}
+          article p{width:600px; margin:0; padding:0 0 0 0; font-weight:normal; clear:both;}
+          article time { color:green; }
+
+      #header h1, #header h2{ float: left; text-transform: uppercase;}
+      #header h1 { font: 48px "Arial Black"; margin:0;padding:0; line-height: 48px; }
+      #header h2 { font: 24px Tahoma; font-style: italic; padding: 0; margin: 0; line-height: 24px; clear: left;}
+      
+      #profile p{ width: 800px; text-indent: 10pt; }
+      #profile article{ width: 800px; text-indent: 10pt; margin: 0 auto;}
+
+      #contact-info { float:left; border: none; padding: 1px; }
+      #contact-info p, #contact-info a { font-size: 12px; color: #888; margin-right: 10px; width: auto; text-decoration: none; float: left; clear: none;}
+      #contact-info article { padding:0; margin: 0;}
+      #contact-info a:hover { color: green;}
+      #contact-info a:selected { border: none;}
+
+      #skillsets article h2 { padding: 0; margin: 0; font-size: 18px; font-style: italic;}
+      #skillsets article ul { list-style-type:none; padding:0; margin:0; overflow:auto; float: left; width: 200px;}
+      #skillsets article ul ul { font-size: 14px; padding-left: 15px; font-style: italic; width: 180px;}
+      #skillsets article ul li {padding:0; margin:0;}
+      #skillsets span { font-size: 12px; font-style: italic; color: #888;}
+      
+      #pdf-download { -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; background-color: #888; padding: 4px 6px 4px 6px; color: #fff; font-weight: bold; text-decoration: none; float: right;} 
+      #pdf-download:hover { background-color: green;}
+      
+      #work-history ul { width: 550px; font-size: 14px;}
+    </style>
+    
+    <style type="text/css" media="print">
+      body{ margin:0 auto; font:14px/24px Tahoma; background-color: #ddd;}
+      #content { width:960px; background:none repeat scroll 0 0 #F4EAAC; margin: 0 auto; padding: 20px;}
+      h1,h2,h3,h4,h5,h6{font:normal 14px/24px Tahoma; margin:0; }
+      a:hover { color: green;}
+      section, article, header{display:block}        
+        section{position:relative; overflow:auto; margin:0 0 20px; border-top: 1px solid #ccc; padding-top: 20px;}  
+        section header{position:absolute; top:20px; left:0; color:#888;}
+          article{margin:0 0 0 140px; position:relative}
+          article header{left:auto; right:0; top:0; text-align:right; clear:left; color:green}
+          article p{width:600px; margin:0; padding:0 0 0 0; font-weight:normal; clear:both;}
+          article time { color:green; }
+
+      #header h1, #header h2{ float: left; text-transform: uppercase;}
+      #header h1 { font: 48px "Arial Black"; margin:0;padding:0; line-height: 48px; }
+      #header h2 { font: 24px Tahoma; font-style: italic; padding: 0; margin: 0; line-height: 24px; clear: left;}
+    
+      #profile p{ width: 900px; text-indent: 10pt; font-size: 14px; text-align: justify;}
+      #profile article{ margin: 0 auto; text-align: justify;}
+
+      #contact-info { float:left; border: none; padding: 1px; }
+      #contact-info p, #contact-info a { font-size: 12px; color: #888; margin-right: 10px; width: auto; text-decoration: none; float: left; clear: none;}
+      #contact-info article { padding:0; margin: 0;}
+      #contact-info a:hover { color: green;}
+      #contact-info a:selected { border: none;}
+
+      #skillsets article h2 { padding: 0; margin: 0; font-size: 18px; font-style: italic;}
+      #skillsets article ul { list-style-type:none; padding:0; margin:0; overflow:auto; float: left; width: 200px;}
+      #skillsets article ul ul { font-size: 14px; padding-left: 15px; font-style: italic; width: 180px;}
+      #skillsets article ul li {padding:0; margin:0;}
+      #skillsets span { font-size: 12px; font-style: italic; color: #888;}
+      
+      #work-history p ul { width: 400px;}
+      
+      #pdf-download { display: none;}
+      
+      #work-history ul { width: 550px; font-size: 14px;}
+    </style>
+</head>
+<body>
+  <div id="content">
+    <!-- <a href="/resume.pdf" id="pdf-download">Download PDF</a> -->
+    <div id="header">
+      <h1>Mike Mayo</h1>
+      <h2>Ruby Web Developer</h2>
+    </div>
+    <div style="clear: both;"></div>
+    <section id="contact-info">
+      <article>
+        <p>1105 Island Park Blvd, Apt 531, Shreveport, LA, 71105</p>
+        <p>318-655-6352</p>
+        <a href="mailto:gotmayonase@gmail.com">gotmayonase@gmail.com</a>
+      </article>
+    </section>
+    <div style="clear: both;"></div>
+    <section id="profile">
+      <article>
+        <p align="justify">
+          If over 4 years of web development experience has taught me anything, it's that adaptability is key in this industry.  I started work at Wieck Media having never 
+          seen or written a line of Ruby code, and within days I was working on client projects.  In the past three years I've been a developer on web applications for several 
+          major auto manufacturers, an oil company, and the Australian government as well as smaller clients like a ski resort out of California.  My duties have ranged from 
+          handling video RSS ingest and transcoding systems utilizing FFMPEG to designing and building a statistics reporting system for the newsroom platform, and many of these
+          duties pushed me well outside my development comfort zone.
+        </p>
+        <br />
+        <p align="justify">
+          But now I'm ready to broaden my horizons even further.  I'm looking for a position that will allow me to both experiment with new technologies, and dive back into the
+          core Ruby and Rails communities.  I value a work environment that is focused on thorough planning and delivering an on-time, well-tested product to the client.  I want 
+          an employer that is interested in my growth as a developer, and who is willing to recognize and reward those who consistently go the extra mile.  But most of all I'm looking 
+          for a stable, fun, and friendly work environment where I can develop exciting new Ruby-based web applications with a team devoted to always putting their all into any
+          product they create.
+        </p>
+      </article>
+    </section>
+    <section id="work-history">
+      <header>
+        <h1>Employment</h1>
+      </header>
+      <article style="margin-bottom: 40px">      
+        <header>          
+          <h1>Twin Engine Labs</h1>
+          <h2>Lead Engineer</h2>
+        </header>
+        <time datetime="2010-01-01">March 2011</time> - <time datetime="2010-01-01">Present</time>
+      </article>
+      <article>      
+        <header>          
+          <h1>Wieck Media</h1>
+          <h2>Web Developer</h2>
+        </header>
+        <time datetime="2010-01-01">October 2007</time> - <time datetime="2010-01-01">March 2011</time>
+        <p align="justify">
+          For three years I worked as a Ruby web developer with Wieck Media, a company whose focus is online digital Newsrooms.  I personally worked on websites for many high profile clients including the New York Times, Mercedes-Benz, Mitsubishi, and Ford.  I was involved in every aspect of the development process and my responsibilities included:
+          <ul>
+            <li>Feature design and implementation</li>
+            <li>QA and Bug stomping</li>
+            <li>Server setup (on Unix servers)</li>
+            <li>Existing site maintenance</li>
+            <li>Development of a modular Newsroom product used on all client sites</li>
+          </ul>
+        </p>
+      </article>
+      <article>      
+        <header>          
+          <h1>North Caddo Medical Center</h1>
+          <h2>IT Support</h2>
+        </header>
+        <time datetime="2010-01-01">2006</time> - <time datetime="2010-01-01">2007</time>
+        <p align="justify">I was brought in to a small hospital in Vivian, LA as the sole network admin/IT support employee.  I was tasked with maintaining their existing network of approximately 50 workstations, as well as ordering and setup/installation of new desktop PCs for incoming employees.  Some of my other duties included:
+          <ul>
+            <li>Upgrade and maintain software and hardware for PCs using Windows 2000 – XP</li>
+            <li>Rollout small wireless network for laptop using employees</li>
+            <li>Advise hospital director on network and PC upgrade options for future upgrades</li>
+          </ul>
+        </p>
+      </article>
+      <article>      
+        <header>          
+          <h1>US Support Company</h1>
+          <h2>SQL Developer</h2>
+        </header>
+        <time datetime="2010-01-01">2004</time> - <time datetime="2010-01-01">2005</time>
+        <p align="justify">Though originally hired as a customer service representative at the USSC call center in Shreveport, I quickly became familiar with Microsoft Access and developed several small applications to streamline my team's workflow.  This got the attention of management and I was moved into a newly created software development department as a SQL developer.  I spent a majority of my time setting up databases for the internal applications used at the call center, including creating and normalizing tables and creating stored procedures accessed by the web applications.  Other duties:
+          <ul>
+            <li>Assisted with database creation for an application designed to be marketable to call centers for call tracking, quoting, monitoring, and reporting.</li>
+            <li>Managed user and group security for all existing and created databases using MSSQL 2000</li>
+            <li>Created a database for use with the companies new applicant system, including all stored procedures, tables, and triggers</li>
+          </ul>
+        </p>
+      </article>
+    </section>
+    <section id="skillsets">
+      <header>
+        <h1>Skillsets</h1>
+      </header>
+      <article>
+        <ul>
+          <li>PostgreSQL</li>
+          <li>MySQL</li>
+          <li>MSSQL</li>
+          <li>&dagger;ActiveRecord</li>
+          <li>&dagger;DataMapper</li>
+        </ul>
+        <ul>
+          <li>Ruby</li>
+          <li>HTML/CSS</li>
+          <li>jQuery</li>
+          <li>Git</li>
+          <li>Subversion</li>
+        </ul>
+        <ul>
+          <li>Apache</li>
+          <li>Nginx</li>
+          <li>&dagger;Rails</li>
+          <li>&dagger;Merb</li>
+          <li>&dagger;Harbor</li>
+        </ul>
+        <ul>
+          <li>Mac OS X</li>
+          <li>Linux
+            <ul>
+              <li>Ubuntu</li>
+              <li>CentOS</li>
+              <li>RedHat</li>
+            </ul>
+          </li>
+          <li>Windows</li>
+          <li>Solaris (some)</li>
+        </ul>
+        <div style="clear: both;">
+        <span>&dagger; denotes a Ruby specific technology</span>
+      </article>
+    </section>
+  </div>
+</body>
+</html>

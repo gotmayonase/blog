@@ -410,3 +410,12 @@ img#mo:hover{
 cite{
   font-style: italic;
 }
+
+ol {
+  margin-left: 20px;
+}
+
+ol li {
+  list-style-type: decimal;
+  margin-bottom: 7px;
+}

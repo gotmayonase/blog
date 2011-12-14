@@ -1,0 +1,88 @@
+---
+layout: post
+title: Automatically Cached Rake Routes and Annotated Models
+excerpt: If you've been frustrated by the slow rake routes execution time, here's a fix for you.
+published: true
+category: 
+keywords: rake,routes,cached,annotate,rails
+---
+
+If you've spent any time developing a Rails application, you're likely familiar with the command `rake routes`. If you're not, this little marvel will greatly simplify you dev experience, as it prints out all the available routes in your application and their associated path helpers.
+
+However, as of late it has slowed down considerably.  I'm not sure if it was with the changes in Ruby 1.9.2 or Rails 3, but running that command will take a ridiculous amount of time depending on the complexity of your project.
+
+For a base Rails project (I literally just ran @rails base_rails@):
+
+{% highlight console %}
+  $ time rake routes
+    /:controller/:action/:id           
+    /:controller/:action/:id(.:format) 
+  real	0m1.969s
+  user	0m1.541s
+  sys	0m0.200s
+{% endhighlight %}
+
+For a moderately-sized Rails project (a client project I'm currently working on):
+
+{% highlight console %}
+  $ time rake routes
+  ... lots of routes ...
+  real	0m29.664s
+  user	0m14.373s
+  sys	0m2.039s
+{% endhighlight %}
+
+Nearly 30 seconds just to get a list of the available routes, completely unacceptable.
+
+I set out yesterday with the idea of caching the output of this command in a temporary file, and to print out the cached version as long as the routes file hadn't been updated since the last cache time.  Unfortunately overwriting a Rake task isn't as easy as it should be, so I accomplished this goal with a simple Ruby script in the project directory:
+
+{% highlight ruby %}
+  #!/usr/bin/env ruby
+
+  routes = ['config/routes.rb'] + Dir['config/routes/*.rb']
+  temp_f = 'tmp/routes'
+  if (File.exists?(temp_f)) && !routes.any? { |f| File.mtime(f) > File.mtime(temp_f) }
+    File.open(temp_f).each_line { |l| puts l }
+  else
+    require File.expand_path('../config/application', __FILE__)
+    load 'Rakefile'
+    orig_stdout = $stdout
+    $stdout = File.open(temp_f, 'w')
+    Rake::Task["routes"].invoke
+    $stdout.close
+    $stdout = orig_stdout
+    File.open(temp_f).each_line { |l| puts l }
+  end
+{% endhighlight %}
+
+While this worked, I hated that I was having to adjust to running a new command, and it meant that, if I added new routes, I was still 30 seconds away from seeing what my path helpers were.  The ideal was to have the routes cached automatically as soon as I changed my routes file.
+
+Enter "Guard":https://github.com/guard/guard and "Guard-Annotate":https://github.com/guard/guard-annotate.  Guard is a Ruby gem that wraps file observer functionality across all platforms, and Guard-Annotate is a module for Guard that hooks into "Annotate":https://github.com/ctran/annotate_model.  Annotate allows you to add the schema of your models as comments to the bottom of the model file, as well as add the output of @rake routes@ to the bottom of your routes.rb.
+
+With those 2 gems, I could just create a Guardfile in my project directory, and run @guard start@ alongside my Rails server and have all the annotations performed automatically for me.  This is a giant step in the right direction, but I also didn't want to have to run another daemon (as undoubtedly I'd forget to run it 90% of the time).
+
+Another issue I ran into: Guard-Annotate was simply shelling out to @bundle exec annotate@, which in turn was shelling out to @rake routes@ for the routes portion of the annotation.  This meant that I was still 30 seconds away from savings my routes.rb and seeing the updated annotations.  Plus there was really no need to load the entire Rails stack again (via Rake) when this is all happening in the context of a running Rails app.
+
+My solution came in a few steps:
+
+# Run @Guard.start(:notify => true)@ in a thread that I spawn inside @development.rb@.  That way Guard is run automatically when I launch my server in the dev environment.
+# I decided to cache the routes to a tempfile instead of annotating @routes.rb@ since it can get fairly lengthy and most of the devs I work with are used to using @rake routes@ anyways.
+# Create my own Guard extensions to handle Route caching.  I ripped out all the code from the @rake routes@ task and included it in the extension so no more loading another environment or shelling out unnecessarily.
+# Create another extension to handle Model annotations (since that was taking > 15 seconds as well due to shelling out to @annotate@).
+# Hack my @Rakefile@ to bypass loading the environment if my cached routes file exists, and just print out its contents.
+
+The code is a little too long to include here, so instead I've provided "this pastie":http://pastie.org/3017353 with all the relevant bits.
+
+The final outcome: Routes are cached within 0.15 seconds of saving @routes.rb@, models updated within 0.25 seconds of updating @schema.rb@, faster than I was able to switch to the relevant file or ALT+Tab to my terminal.  And rake routes?  See for yourself:
+
+{% highlight console %}
+  $ time rake routes
+  #== Route Map
+  # Generated on 13 Dec 2011 23:59
+  #
+  ... lots of routes ...
+  real	0m0.676s
+  user	0m0.249s
+  sys	0m0.065s
+{% endhighlight %}
+

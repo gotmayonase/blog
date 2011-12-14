@@ -55,6 +55,9 @@
             <li>
               <a href="/contact">Contact</a>
             </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
           </ul>
           <hr class="right"/>
         </div> <!-- end #header -->
@@ -74,122 +77,120 @@
     <p>We&#8217;ve actually only recently started really trying to integrate testing into our projects, and we&#8217;ve chosen to use <a href="https://github.com/seattlerb/minitest">MiniTest</a>.  After upgrading to the latest version (2.0.0), I had high hopes that I could just mimic the behavior of the Pride extension, replace the default MiniTest::Unit.output with my own MiniTest::ProgressBar object that would convert the lovely periods and letters into the colored progress bar I longed for.  Unfortunately I quickly discovered that MiniTest doesn&#8217;t expose any of the import things I needed, like a total count of tests being run.  </p> 
     <p>I decided to start with a proof-of-concept (read: dirty override hack) just to be sure I could get the output I wanted from MiniTest.  What I ended up with looked something like this:</p> 
     <p>
-      <div>
-  <pre>
-    <code class='ruby'>require &quot;minitest/unit&quot;
-        require 'progressbar'
+      <div class="highlight"><pre><code class="ruby">        <span class="nb">require</span> <span class="s2">&quot;minitest/unit&quot;</span>
+        <span class="nb">require</span> <span class="s1">&#39;progressbar&#39;</span>
 
-        class MiniTest::Unit
+        <span class="k">class</span> <span class="nc">MiniTest</span><span class="o">::</span><span class="no">Unit</span>
 
-          COLORS = { :green =&gt;  &quot;\e[32m&quot;, :yellow =&gt; &quot;\e[33m&quot;, :red =&gt; &quot;\e[31m&quot;, :white =&gt; &quot;\e[37m&quot; }
-          @@state = nil
+          <span class="no">COLORS</span> <span class="o">=</span> <span class="p">{</span> <span class="ss">:green</span> <span class="o">=&gt;</span>  <span class="s2">&quot;</span><span class="se">\e</span><span class="s2">[32m&quot;</span><span class="p">,</span> <span class="ss">:yellow</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="se">\e</span><span class="s2">[33m&quot;</span><span class="p">,</span> <span class="ss">:red</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="se">\e</span><span class="s2">[31m&quot;</span><span class="p">,</span> <span class="ss">:white</span> <span class="o">=&gt;</span> <span class="s2">&quot;</span><span class="se">\e</span><span class="s2">[37m&quot;</span> <span class="p">}</span>
+          <span class="vc">@@state</span> <span class="o">=</span> <span class="kp">nil</span>
 
-          def _run_suites suites, type
-            @@report_count = 0
-            filter = options[:filter] || '/./'
-            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+          <span class="k">def</span> <span class="nf">_run_suites</span> <span class="n">suites</span><span class="p">,</span> <span class="n">type</span>
+            <span class="vc">@@report_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">filter</span> <span class="o">=</span> <span class="n">options</span><span class="o">[</span><span class="ss">:filter</span><span class="o">]</span> <span class="o">||</span> <span class="s1">&#39;/./&#39;</span>
+            <span class="n">filter</span> <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span> <span class="vg">$1</span> <span class="k">if</span> <span class="n">filter</span> <span class="o">=~</span> <span class="sr">/\/(.*)\//</span>
 
-            self.class.progress_bar = ProgressBar.new(type.to_s.capitalize, suites.inject(0) { |i, suite| i += suite.send(&quot;#{type}_methods&quot;).grep(filter).size })
-            suites.map { |suite| _run_suite suite, type }
-          end
+            <span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">progress_bar</span> <span class="o">=</span> <span class="no">ProgressBar</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">type</span><span class="o">.</span><span class="n">to_s</span><span class="o">.</span><span class="n">capitalize</span><span class="p">,</span> <span class="n">suites</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">i</span><span class="p">,</span> <span class="n">suite</span><span class="o">|</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">suite</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2">_methods&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">filter</span><span class="p">)</span><span class="o">.</span><span class="n">size</span> <span class="p">})</span>
+            <span class="n">suites</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">suite</span><span class="o">|</span> <span class="n">_run_suite</span> <span class="n">suite</span><span class="p">,</span> <span class="n">type</span> <span class="p">}</span>
+          <span class="k">end</span>
 
-          def _run_suite(suite, type)
-            header = &quot;#{type}_suite_header&quot;
-            puts send(header, suite) if respond_to? header
+          <span class="k">def</span> <span class="nf">_run_suite</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span> <span class="n">type</span><span class="p">)</span>
+            <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2">_suite_header&quot;</span>
+            <span class="nb">puts</span> <span class="nb">send</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">suite</span><span class="p">)</span> <span class="k">if</span> <span class="nb">respond_to?</span> <span class="n">header</span>
 
-            filter = options[:filter] || '/./'
-            filter = Regexp.new $1 if filter =~ /\/(.*)\//
+            <span class="n">filter</span> <span class="o">=</span> <span class="n">options</span><span class="o">[</span><span class="ss">:filter</span><span class="o">]</span> <span class="o">||</span> <span class="s1">&#39;/./&#39;</span>
+            <span class="n">filter</span> <span class="o">=</span> <span class="no">Regexp</span><span class="o">.</span><span class="n">new</span> <span class="vg">$1</span> <span class="k">if</span> <span class="n">filter</span> <span class="o">=~</span> <span class="sr">/\/(.*)\//</span>
 
-            methods = suite.send(&quot;#{type}_methods&quot;).grep(filter)
+            <span class="nb">methods</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2">_methods&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">grep</span><span class="p">(</span><span class="n">filter</span><span class="p">)</span>
 
-            assertions = methods.map { |method|
-              inst = suite.new method
-              inst._assertions = 0
+            <span class="n">assertions</span> <span class="o">=</span> <span class="nb">methods</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="nb">method</span><span class="o">|</span>
+              <span class="n">inst</span> <span class="o">=</span> <span class="n">suite</span><span class="o">.</span><span class="n">new</span> <span class="nb">method</span>
+              <span class="n">inst</span><span class="o">.</span><span class="n">_assertions</span> <span class="o">=</span> <span class="mi">0</span>
 
-              start_time = Time.now
-              result = inst.run self
-              time = Time.now - start_time
+              <span class="n">start_time</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span>
+              <span class="n">result</span> <span class="o">=</span> <span class="n">inst</span><span class="o">.</span><span class="n">run</span> <span class="nb">self</span>
+              <span class="n">time</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span> <span class="o">-</span> <span class="n">start_time</span>
 
-              print &quot;#{suite}##{method} = %.2f s = &quot; % time if @verbose
-              print result
-              puts if @verbose
+              <span class="nb">print</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="n">suite</span><span class="si">}</span><span class="s2">#</span><span class="si">#{</span><span class="nb">method</span><span class="si">}</span><span class="s2"> = %.2f s = &quot;</span> <span class="o">%</span> <span class="n">time</span> <span class="k">if</span> <span class="vi">@verbose</span>
+              <span class="nb">print</span> <span class="n">result</span>
+              <span class="nb">puts</span> <span class="k">if</span> <span class="vi">@verbose</span>
 
-              inst._assertions
-            }
+              <span class="n">inst</span><span class="o">.</span><span class="n">_assertions</span>
+            <span class="p">}</span>
 
-            return assertions.size, assertions.inject(0) { |sum, n| sum + n }
-          end
+            <span class="k">return</span> <span class="n">assertions</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">assertions</span><span class="o">.</span><span class="n">inject</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="o">|</span><span class="n">sum</span><span class="p">,</span> <span class="n">n</span><span class="o">|</span> <span class="n">sum</span> <span class="o">+</span> <span class="n">n</span> <span class="p">}</span>
+          <span class="k">end</span>
 
-          def print *a # :nodoc:
-            case a
-            when [&quot;.&quot;] then
-              # do nothing
-            when [&quot;E&quot;] then
-              current_state = &quot;error&quot;
-              @@state = :red
-            when [&quot;F&quot;] then
-              current_state = &quot;fail&quot;
-              @@state = :red
-            when [&quot;S&quot;] then
-              current_state = &quot;skip&quot;
-              @@state ||= :yellow
-            else
-              # nothing
-            end
-            if report = @report.pop
-              @@report_count += 1
-              self.send(&quot;print_#{current_state}&quot;, report)
-            end
-            output.print COLORS[state]
-            progress_bar.inc
-            output.print COLORS[:white]
-          end
+          <span class="k">def</span> <span class="nf">print</span> <span class="o">*</span><span class="n">a</span> <span class="c1"># :nodoc:</span>
+            <span class="k">case</span> <span class="n">a</span>
+            <span class="k">when</span> <span class="o">[</span><span class="s2">&quot;.&quot;</span><span class="o">]</span> <span class="k">then</span>
+              <span class="c1"># do nothing</span>
+            <span class="k">when</span> <span class="o">[</span><span class="s2">&quot;E&quot;</span><span class="o">]</span> <span class="k">then</span>
+              <span class="n">current_state</span> <span class="o">=</span> <span class="s2">&quot;error&quot;</span>
+              <span class="vc">@@state</span> <span class="o">=</span> <span class="ss">:red</span>
+            <span class="k">when</span> <span class="o">[</span><span class="s2">&quot;F&quot;</span><span class="o">]</span> <span class="k">then</span>
+              <span class="n">current_state</span> <span class="o">=</span> <span class="s2">&quot;fail&quot;</span>
+              <span class="vc">@@state</span> <span class="o">=</span> <span class="ss">:red</span>
+            <span class="k">when</span> <span class="o">[</span><span class="s2">&quot;S&quot;</span><span class="o">]</span> <span class="k">then</span>
+              <span class="n">current_state</span> <span class="o">=</span> <span class="s2">&quot;skip&quot;</span>
+              <span class="vc">@@state</span> <span class="o">||=</span> <span class="ss">:yellow</span>
+            <span class="k">else</span>
+              <span class="c1"># nothing</span>
+            <span class="k">end</span>
+            <span class="k">if</span> <span class="n">report</span> <span class="o">=</span> <span class="vi">@report</span><span class="o">.</span><span class="n">pop</span>
+              <span class="vc">@@report_count</span> <span class="o">+=</span> <span class="mi">1</span>
+              <span class="nb">self</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;print_</span><span class="si">#{</span><span class="n">current_state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span>
+            <span class="k">end</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">print</span> <span class="no">COLORS</span><span class="o">[</span><span class="n">state</span><span class="o">]</span>
+            <span class="n">progress_bar</span><span class="o">.</span><span class="n">inc</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">print</span> <span class="no">COLORS</span><span class="o">[</span><span class="ss">:white</span><span class="o">]</span>
+          <span class="k">end</span>
 
-          def state
-            @@state || :green
-          end
+          <span class="k">def</span> <span class="nf">state</span>
+            <span class="vc">@@state</span> <span class="o">||</span> <span class="ss">:green</span>
+          <span class="k">end</span>
 
-          def progress_bar
-            self.class.progress_bar
-          end
+          <span class="k">def</span> <span class="nf">progress_bar</span>
+            <span class="nb">self</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">progress_bar</span>
+          <span class="k">end</span>
 
-          def self.progress_bar
-            @@progress_bar ||= ProgressBar.new(&quot;Tests&quot;)
-          end
+          <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">progress_bar</span>
+            <span class="vc">@@progress_bar</span> <span class="o">||=</span> <span class="no">ProgressBar</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Tests&quot;</span><span class="p">)</span>
+          <span class="k">end</span>
 
-          def self.progress_bar=(bar)
-            @@progress_bar = bar
-          end
+          <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">progress_bar</span><span class="o">=</span><span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+            <span class="vc">@@progress_bar</span> <span class="o">=</span> <span class="n">bar</span>
+          <span class="k">end</span>
 
-          private
+          <span class="kp">private</span>
 
-          def print_skip(report)
-            output.print COLORS[:yellow]
-            print_report(report)
-          end
+          <span class="k">def</span> <span class="nf">print_skip</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">print</span> <span class="no">COLORS</span><span class="o">[</span><span class="ss">:yellow</span><span class="o">]</span>
+            <span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+          <span class="k">end</span>
 
-          def print_fail(report)
-            output.print COLORS[:red]
-            print_report(report)
-          end
+          <span class="k">def</span> <span class="nf">print_fail</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">print</span> <span class="no">COLORS</span><span class="o">[</span><span class="ss">:red</span><span class="o">]</span>
+            <span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+          <span class="k">end</span>
 
-          def print_error(report)
-            output.print COLORS[:red]
-            print_report(report)
-          end
+          <span class="k">def</span> <span class="nf">print_error</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">print</span> <span class="no">COLORS</span><span class="o">[</span><span class="ss">:red</span><span class="o">]</span>
+            <span class="n">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+          <span class="k">end</span>
 
-          def print_report(report)
-            output.print &quot;\e[K&quot;
-            output.puts
-            output.puts &quot;\n%3d) %s&quot; % [@@report_count, report]
-            puts
-            output.flush
-          end
+          <span class="k">def</span> <span class="nf">print_report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">print</span> <span class="s2">&quot;</span><span class="se">\e</span><span class="s2">[K&quot;</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">puts</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">%3d) %s&quot;</span> <span class="o">%</span> <span class="o">[</span><span class="vc">@@report_count</span><span class="p">,</span> <span class="n">report</span><span class="o">]</span>
+            <span class="nb">puts</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">flush</span>
+          <span class="k">end</span>
 
-        end</code>
-  </pre>
+        <span class="k">end</span>
+      
+</code></pre>
 </div>
-
     </p> 
     <p>Like I said, it&#8217;s dirty, but it works.  What I&#8217;m left with now is an output from running my tests that looks like this:</p> 
     <p><img src="http://grab.by/grabs/82b1d2b18ca1d648c3481f4efbf69954.png" width="488" height="340"/></p> 

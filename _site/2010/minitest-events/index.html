@@ -55,6 +55,9 @@
             <li>
               <a href="/contact">Contact</a>
             </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
           </ul>
           <hr class="right"/>
         </div> <!-- end #header -->
@@ -71,60 +74,48 @@
 	<p>A few weeks ago I made a hack to <a href="https://github.com/seattlerb/minitest">MiniTest</a> to add <a href="https://github.com/jeffkreeftmeijer/fuubar">Fuubar-like</a> functionality.  Unfortunately the hack was a little dirty, and I wanted to make MiniTest more extendable, at least for reporting purposes.  My solution was to borrow from the Events system I wrote for <a href="https://github.com/wiecklabs/harbor">Harbor</a> (a web framework we wrote and use at <a href="http://www.wieck.com">Wieck Media</a>).</p>
 <p>The concept is very simple; you just raise an event wherever you feel you need to, and pass in a context object of some kind.  Then you register an event handler, which is just a class with a call method that is executed at the time of the event raise.</p>
 <p>For example, here I am raising an event just before all of the tests begin to run:</p>
-<div>
-<pre>
-<code class='ruby'>event = RunAnythingEvent.new(self, type, suites, options)
-
-raise_event(:run_anything_start, event)</code>
-</pre>
-</div>
-<p>As you can see it&#8217;s using a special RunAnythingEvent context object, whose definition looks like so:</p>
-<div>
-<pre>
-<code class='ruby'>class RunAnythingEvent &amp;lt; BaseEvent
-
-attr_reader :runner, :type, :output, :suites, :options
-attr_accessor :test_count, :assertion_count, :report, :failures, :errors, :skips
-
-def initialize(runner, type, suites, options)
-super()
-@runner = runner
-@output = runner.output
-@suites = suites
-@type = type
-@options = options
-end
-
-end</code>
-</pre>
-</div>
-<p>And here is an example of an event handler for this event:</p>
-<div>
-<pre>
-<code class='ruby'>class RunAnythingStartHandler
-
-def initialize(event)
-@event = event
-@output = event.output
-@type = event.type
-end
-
-def call
-@output.puts
-<code>output.puts &amp;quot;# Running #{</code>type}s:&quot;
-@output.puts
-end
-
-end</code>
-</pre>
-</div>
-<p>Which is registered by calling the following method off the class where the event was raised:</p>
-<div>
-<pre>
-<code class='ruby'>register_event_handler(:run_anything_start, RunAnythingStartHandler)</code>
-</pre>
-</div>
-<p>This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (<code>MiniTest::Reporting</code>) which is enabled by default.</p>
+<div class="highlight"><pre><code class="ruby">  <span class="n">event</span> <span class="o">=</span> <span class="no">RunAnythingEvent</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="nb">self</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="n">suites</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+  
+  <span class="n">raise_event</span><span class="p">(</span><span class="ss">:run_anything_start</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
+</code></pre>
+</div><p>As you can see it&#8217;s using a special RunAnythingEvent context object, whose definition looks like so:</p>
+<div class="highlight"><pre><code class="ruby">  <span class="k">class</span> <span class="nc">RunAnythingEvent</span> <span class="o">&lt;</span> <span class="no">BaseEvent</span>
+    
+    <span class="kp">attr_reader</span> <span class="ss">:runner</span><span class="p">,</span> <span class="ss">:type</span><span class="p">,</span> <span class="ss">:output</span><span class="p">,</span> <span class="ss">:suites</span><span class="p">,</span> <span class="ss">:options</span>
+    <span class="kp">attr_accessor</span> <span class="ss">:test_count</span><span class="p">,</span> <span class="ss">:assertion_count</span><span class="p">,</span> <span class="ss">:report</span><span class="p">,</span> <span class="ss">:failures</span><span class="p">,</span> <span class="ss">:errors</span><span class="p">,</span> <span class="ss">:skips</span>
+    
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">runner</span><span class="p">,</span> <span class="n">type</span><span class="p">,</span> <span class="n">suites</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+      <span class="k">super</span><span class="p">()</span>
+      <span class="vi">@runner</span> <span class="o">=</span> <span class="n">runner</span>
+      <span class="vi">@output</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">output</span>
+      <span class="vi">@suites</span> <span class="o">=</span> <span class="n">suites</span>
+      <span class="vi">@type</span> <span class="o">=</span> <span class="n">type</span>
+      <span class="vi">@options</span> <span class="o">=</span> <span class="n">options</span>
+    <span class="k">end</span>
+    
+  <span class="k">end</span>
+</code></pre>
+</div><p>And here is an example of an event handler for this event:</p>
+<div class="highlight"><pre><code class="ruby">  <span class="k">class</span> <span class="nc">RunAnythingStartHandler</span>
+  
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+      <span class="vi">@event</span> <span class="o">=</span> <span class="n">event</span>
+      <span class="vi">@output</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">output</span>
+      <span class="vi">@type</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span>
+    <span class="k">end</span>
+  
+    <span class="k">def</span> <span class="nf">call</span>
+      <span class="vi">@output</span><span class="o">.</span><span class="n">puts</span>
+      <span class="vi">@output</span><span class="o">.</span><span class="n">puts</span> <span class="s2">&quot;# Running </span><span class="si">#{</span><span class="vi">@type</span><span class="si">}</span><span class="s2">s:&quot;</span>
+      <span class="vi">@output</span><span class="o">.</span><span class="n">puts</span>
+    <span class="k">end</span>
+  
+  <span class="k">end</span>
+</code></pre>
+</div><p>Which is registered by calling the following method off the class where the event was raised:</p>
+<div class="highlight"><pre><code class="ruby">  <span class="n">register_event_handler</span><span class="p">(</span><span class="ss">:run_anything_start</span><span class="p">,</span> <span class="no">RunAnythingStartHandler</span><span class="p">)</span>
+</code></pre>
+</div><p>This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (<code>MiniTest::Reporting</code>) which is enabled by default.</p>
 <p>The next step, which I&#8217;ve already partially completed, is to create plugins that handle alternative output options like the progress bar and instafailing.  If you&#8217;re interested, the work is being done in the <a href="https://github.com/gotmayonase/minitest/tree/events">events branch</a> on my Github account.  Assuming Node.js doesn&#8217;t monopolize all my time, I hope to have it completed in the near future.  If you have any ideas, feel free to let me know.</p>
 </div>
 

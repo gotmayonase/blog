@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, rake,routes,cached,annotate,rails" />
+  <meta name="description" content="If you've been frustrated by the slow rake routes execution time, here's a fix for you." />
+  <title>
+    Automatically Cached Rake Routes and Annotated Models -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" />
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="http://github.com/gotmayonase">Github &rarr;</a>
+            </li>
+            <li>
+              <a href="http://twitter.com/mike_mayo">Twitter &rarr;</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+        </div> <!-- end #header -->
+        <h2>Automatically Cached Rake Routes and Annotated Models</h2>
+        
+
+<p class="article_date date">
+  14 Dec 2011
+</p>
+
+<hr/>
+
+<div id="content">
+	<p>If you&#8217;ve spent any time developing a Rails application, you&#8217;re likely familiar with the command `rake routes`. If you&#8217;re not, this little marvel will greatly simplify you dev experience, as it prints out all the available routes in your application and their associated path helpers.</p>
+<p>However, as of late it has slowed down considerably.  I&#8217;m not sure if it was with the changes in Ruby 1.9.2 or Rails 3, but running that command will take a ridiculous amount of time depending on the complexity of your project.</p>
+<p>For a base Rails project (I literally just ran <code>rails base_rails</code>):</p>
+<div class="highlight"><pre><code class="console"><span class="go">  $ time rake routes</span>
+<span class="go">    /:controller/:action/:id           </span>
+<span class="go">    /:controller/:action/:id(.:format) </span>
+<span class="go">  real	0m1.969s</span>
+<span class="go">  user	0m1.541s</span>
+<span class="go">  sys	0m0.200s</span>
+</code></pre>
+</div><p>For a moderately-sized Rails project (a client project I&#8217;m currently working on):</p>
+<div class="highlight"><pre><code class="console"><span class="go">  $ time rake routes</span>
+<span class="go">  ... lots of routes ...</span>
+<span class="go">  real	0m29.664s</span>
+<span class="go">  user	0m14.373s</span>
+<span class="go">  sys	0m2.039s</span>
+</code></pre>
+</div><p>Nearly 30 seconds just to get a list of the available routes, completely unacceptable.</p>
+<p>I set out yesterday with the idea of caching the output of this command in a temporary file, and to print out the cached version as long as the routes file hadn&#8217;t been updated since the last cache time.  Unfortunately overwriting a Rake task isn&#8217;t as easy as it should be, so I accomplished this goal with a simple Ruby script in the project directory:</p>
+<div class="highlight"><pre><code class="ruby">  <span class="c1">#!/usr/bin/env ruby</span>
+
+  <span class="n">routes</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;config/routes.rb&#39;</span><span class="o">]</span> <span class="o">+</span> <span class="no">Dir</span><span class="o">[</span><span class="s1">&#39;config/routes/*.rb&#39;</span><span class="o">]</span>
+  <span class="n">temp_f</span> <span class="o">=</span> <span class="s1">&#39;tmp/routes&#39;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="no">File</span><span class="o">.</span><span class="n">exists?</span><span class="p">(</span><span class="n">temp_f</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">routes</span><span class="o">.</span><span class="n">any?</span> <span class="p">{</span> <span class="o">|</span><span class="n">f</span><span class="o">|</span> <span class="no">File</span><span class="o">.</span><span class="n">mtime</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">&gt;</span> <span class="no">File</span><span class="o">.</span><span class="n">mtime</span><span class="p">(</span><span class="n">temp_f</span><span class="p">)</span> <span class="p">}</span>
+    <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">temp_f</span><span class="p">)</span><span class="o">.</span><span class="n">each_line</span> <span class="p">{</span> <span class="o">|</span><span class="n">l</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">l</span> <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="nb">require</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s1">&#39;../config/application&#39;</span><span class="p">,</span> <span class="bp">__FILE__</span><span class="p">)</span>
+    <span class="nb">load</span> <span class="s1">&#39;Rakefile&#39;</span>
+    <span class="n">orig_stdout</span> <span class="o">=</span> <span class="vg">$stdout</span>
+    <span class="vg">$stdout</span> <span class="o">=</span> <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">temp_f</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="no">Rake</span><span class="o">::</span><span class="no">Task</span><span class="o">[</span><span class="s2">&quot;routes&quot;</span><span class="o">].</span><span class="n">invoke</span>
+    <span class="vg">$stdout</span><span class="o">.</span><span class="n">close</span>
+    <span class="vg">$stdout</span> <span class="o">=</span> <span class="n">orig_stdout</span>
+    <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">temp_f</span><span class="p">)</span><span class="o">.</span><span class="n">each_line</span> <span class="p">{</span> <span class="o">|</span><span class="n">l</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">l</span> <span class="p">}</span>
+  <span class="k">end</span>
+</code></pre>
+</div><p>While this worked, I hated that I was having to adjust to running a new command, and it meant that, if I added new routes, I was still 30 seconds away from seeing what my path helpers were.  The ideal was to have the routes cached automatically as soon as I changed my routes file.</p>
+<p>Enter <a href="https://github.com/guard/guard">Guard</a> and <a href="https://github.com/guard/guard-annotate">Guard-Annotate</a>.  Guard is a Ruby gem that wraps file observer functionality across all platforms, and Guard-Annotate is a module for Guard that hooks into <a href="https://github.com/ctran/annotate_model">Annotate</a>.  Annotate allows you to add the schema of your models as comments to the bottom of the model file, as well as add the output of <code>rake routes</code> to the bottom of your routes.rb.</p>
+<p>With those 2 gems, I could just create a Guardfile in my project directory, and run <code>guard start</code> alongside my Rails server and have all the annotations performed automatically for me.  This is a giant step in the right direction, but I also didn&#8217;t want to have to run another daemon (as undoubtedly I&#8217;d forget to run it 90% of the time).</p>
+<p>Another issue I ran into: Guard-Annotate was simply shelling out to <code>bundle exec annotate</code>, which in turn was shelling out to <code>rake routes</code> for the routes portion of the annotation.  This meant that I was still 30 seconds away from savings my routes.rb and seeing the updated annotations.  Plus there was really no need to load the entire Rails stack again (via Rake) when this is all happening in the context of a running Rails app.</p>
+<p>My solution came in a few steps:</p>
+<ol>
+	<li>Run <code>Guard.start(:notify =&gt; true)</code> in a thread that I spawn inside <code>development.rb</code>.  That way Guard is run automatically when I launch my server in the dev environment.</li>
+	<li>I decided to cache the routes to a tempfile instead of annotating <code>routes.rb</code> since it can get fairly lengthy and most of the devs I work with are used to using <code>rake routes</code> anyways.</li>
+	<li>Create my own Guard extensions to handle Route caching.  I ripped out all the code from the <code>rake routes</code> task and included it in the extension so no more loading another environment or shelling out unnecessarily.</li>
+	<li>Create another extension to handle Model annotations (since that was taking &gt; 15 seconds as well due to shelling out to <code>annotate</code>).</li>
+	<li>Hack my <code>Rakefile</code> to bypass loading the environment if my cached routes file exists, and just print out its contents.</li>
+</ol>
+<p>The code is a little too long to include here, so instead I&#8217;ve provided <a href="http://pastie.org/3017353">this pastie</a> with all the relevant bits.</p>
+<p>The final outcome: Routes are cached within 0.15 seconds of saving <code>routes.rb</code>, models updated within 0.25 seconds of updating <code>schema.rb</code>, faster than I was able to switch to the relevant file or ALT+Tab to my terminal.  And rake routes?  See for yourself:</p>
+<div class="highlight"><pre><code class="console"><span class="go">  $ time rake routes</span>
+<span class="go">  #== Route Map</span>
+<span class="go">  # Generated on 13 Dec 2011 23:59</span>
+<span class="go">  #</span>
+<span class="go">  ... lots of routes ...</span>
+<span class="go">  real	0m0.676s</span>
+<span class="go">  user	0m0.249s</span>
+<span class="go">  sys	0m0.065s</span>
+</code></pre>
+</div>
+</div>
+
+<span class="article_buttons">
+  <a class="tweet" target="_blank">
+    <span class="balloon">tweet!</span> <img src="/images/twitter.png"/>
+  </a>
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" target="_blank">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  (function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = 'http://mikemayoblog.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+
+  <script src="/js/jquery.js" type="text/javascript"></script>
+</body>
+</html>
