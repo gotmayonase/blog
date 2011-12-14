@@ -4,7 +4,7 @@
   <title>Mike Mayo</title>
   <link href="http://mikemayo.org/feed.xml" rel="self"/>
   <link href="http://mikemayo.org/"/>
-  <updated>2011-12-14T14:23:35-06:00</updated>
+  <updated>2011-12-14T14:39:18-06:00</updated>
   <id>http://mikemayo.org/</id>
   <author>
     <name>Jeff Mike Mayo</name>
@@ -17,7 +17,7 @@
     <id>http://mikemayo.org/2011/auto-cached-rake-routes-and-auto-annotated-models</id>
     <updated>2011-12-14T00:00:00-06:00</updated>
     <content type="html">
-      &lt;p&gt;If you&amp;#8217;ve spent any time developing a Rails application, you&amp;#8217;re likely familiar with the command `rake routes`. If you&amp;#8217;re not, this little marvel will greatly simplify you dev experience, as it prints out all the available routes in your application and their associated path helpers.&lt;/p&gt;
+      &lt;p&gt;If you&amp;#8217;ve spent any time developing a Rails application, you&amp;#8217;re likely familiar with the command &lt;code&gt;rake routes&lt;/code&gt;. If you&amp;#8217;re not, this little marvel will greatly simplify your dev experience, as it prints out all the available routes in your application and their associated path helpers.&lt;/p&gt;
 &lt;p&gt;However, as of late it has slowed down considerably.  I&amp;#8217;m not sure if it was with the changes in Ruby 1.9.2 or Rails 3, but running that command will take a ridiculous amount of time depending on the complexity of your project.&lt;/p&gt;
 &lt;p&gt;For a base Rails project (I literally just ran &lt;code&gt;rails base_rails&lt;/code&gt;):&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;console&quot;&gt;&lt;span class=&quot;go&quot;&gt;  $ time rake routes&lt;/span&gt;

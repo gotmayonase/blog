@@ -1,4 +1,7 @@
 source :rubygems
 
 gem 'rack-jekyll'
-gem 'RedCloth'
+
+group :development do
+  gem 'RedCloth'
+end
