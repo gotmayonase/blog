@@ -1,0 +1,99 @@
+---
+layout: post
+title: Using Decorators to improve your Inherited Resources experience
+excerpt: Inherited resources is a wonderful, and powerful gem and with a few tweaks we made the base functionality much more generally useful.
+published: true
+category: 
+keywords: rails,inherited resources,decorator,ruby
+---
+
+At "Twin Engine Labs":http://www.twinenginelabs.com we recently discovered the joy that is Jose Valim's "Inherited Resources":https://github.com/josevalim/inherited_resources.  For the unfamiliar, it takes all those generic REST actions and views and abstracts them all out for you, so your controllers simply inherit from @InheritedResources::Base@ and you get the basics for free.  For us, that means that a large portion of our web app admins are already written for us, we just tweak as needed.
+
+My one real gripe, thus far, has been that the generated views Inherited Resources gives you are just too generic.  It defaults to displaying all the @attributes@ for an ActiveRecord resource on the form, show, and index pages, and many of those fields are simply of no use.  We use "Paperclip":https://github.com/thoughtbot/paperclip for all of our file attachments, which adds 4 database fields to represent each attachment (for an attachment named @image@ you end up with @image_file_name@, @image_content_type@, @image_file_size@, and @image_updated_at@).  None of these fields needs to actually be displayed to the user, nor will they ever edit them directly.  
+
+Then there's default Rails fields like @created_at@ and @updated_at@, plus all your foreign keys for @belongs_to@ associations.  While you may want to display the date fields, you generally don't want those editable by a user, and I'd rather show the @belongs_to@ association directly than the foreign key.  On top of this, we use "Formtastic":https://github.com/justinfrench/formtastic for generating forms, so if I could build a more reliable list of attributes and associations that were editable by a user, I could just hand them off to @semantic_form_for@ and let it works its magic.
+
+Enter the "Decorator":http://en.wikipedia.org/wiki/Decorator_pattern pattern.  By creating a generic decorator to wrap my @ActiveRecord@ resource_classes, I could use Rails' magic to get more refined list, then just use that decorator in all the Inherited Resources views.  My base Decorator looks like this:
+
+{% highlight ruby %}
+module InheritedResources
+  class Decorator
+  
+    def initialize(klass)
+      @klass = klass
+    end
+  
+    def form_attributes
+      edit_attrs = editable_attributes.reject {|a| a.to_s =~ /created_at|updated_at/}
+      edit_attrs + belongs_to_associations.map(&:name) + paperclip_attachments
+    end
+  
+    def show_attributes
+      editable_attributes
+    end
+  
+    def index_attributes
+      editable_attributes
+    end
+
+    def editable_attributes
+      assocs = belongs_to_associations
+      attach = paperclip_attachments
+      regex = "^id$"
+      regex << ('|' + assocs.map(&:foreign_key).join('|')) unless assocs.blank?
+      regex << ('|' + attach_attachments.join('|')) unless attach.blank?
+      @klass.attribute_names.reject { |an| an =~ /#{regex}/ }.map(&:to_sym)
+    end
+
+    def belongs_to_associations
+      @klass.reflect_on_all_associations.select { |a| a.macro == :belongs_to }
+    end
+
+    def paperclip_attachments
+      @klass.attachment_definitions ? @klass.attachment_definitions.keys : []
+    end
+  
+    def method_missing(name, *args)
+      @klass.send(name, *args)
+    end
+  
+  end
+end
+{% endhighlight %}
+
+Next I added a helper method to our @ResourceController@ that all of our admin controllers inherit from:
+
+{% highlight ruby %}
+helper_method :decorated_resource_class
+
+def decorated_resource_class
+  "InheritedResources::#{resource_class}Decorator".constantize.new(resource_class) 
+    rescue InheritedResources::Decorator.new(resource_class)
+end
+{% endhighlight %}
+
+As you'll notice, I first try to instantiate a resource_class-specific version of the decorator, because I wanted to be able to subclass and override methods as needed.  Finally I just went through all the generated resource views and replaced @resource_class@ with @decorated_resource_class@ and used the relevant methods to provide the attributes I wanted (e.g: @#form_attributes@ in @_form.html.erb@, @#show_attributes@ in @show.html.erb@, etc...).
+
+What this means is that, at least for the basic, generic pages, I no longer have to override the provided views to get the desired output.  And if I find these sane defaults don't work, but I don't need anything really custom, I can just subclass the Decorator for the specific @resource_class@ and override the methods as needed.  An example I immediately ran into was our User pages: 
+
+{% highlight ruby %}
+module InheritedResources
+  class UserDecorator < Decorator
+    
+    def index_attributes
+      [:first_name, :last_name, :email, :current_city]
+    end
+    
+    def show_attributes
+      index_attributes + [... some more attributes ...]
+    end
+    
+    def form_attributes
+      show_attributes - [... some different attributes ...]
+    end
+    
+  end
+end
+{% endhighlight %}
+
+Of course, this won't cover 100% of the cases, but I found it covers 80% - 90% of the views we use in a standard admin.  The rest are so customized that over-riding the views is the only option anyway.  I considered gemifying this, or making it a pull request for Inherited Resources, but since it's built around our development environment, I think for now I'll leave it as is.
