@@ -4,7 +4,7 @@
   <title>Mike Mayo</title>
   <link href="http://mikemayo.org/feed.xml" rel="self"/>
   <link href="http://mikemayo.org/"/>
-  <updated>2011-12-22T09:25:55-06:00</updated>
+  <updated>2011-12-22T10:18:06-06:00</updated>
   <id>http://mikemayo.org/</id>
   <author>
     <name>Jeff Mike Mayo</name>
@@ -17,10 +17,10 @@
     <id>http://mikemayo.org/2011/using-decorators-to-improve-inherited-resources</id>
     <updated>2011-12-22T00:00:00-06:00</updated>
     <content type="html">
-      &lt;p&gt;At &lt;a href=&quot;http://www.twinenginelabs.com&quot;&gt;Twin Engine Labs&lt;/a&gt; we recently discovered the joy that is Jose Valim&amp;#8217;s &lt;a href=&quot;https://github.com/josevalim/inherited_resources&quot;&gt;Inherited Resources&lt;/a&gt;.  For the unfamiliar, it takes all those generic &lt;span class=&quot;caps&quot;&gt;REST&lt;/span&gt; actions and views and abstracts them all out for you, so your controllers simply inherit from &lt;code&gt;InheritedResources::Base&lt;/code&gt; and you get the basics for free.  For us, that means that a large portion of our web app admins are already written for us, we just tweak as needed.&lt;/p&gt;
-&lt;p&gt;My one real gripe, thus far, has been that the generated views Inherited Resources gives you are just too generic.  It defaults to displaying all the &lt;code&gt;attributes&lt;/code&gt; for an ActiveRecord resource on the form, show, and index pages, and many of those fields are simply of no use.  We use &lt;a href=&quot;https://github.com/thoughtbot/paperclip&quot;&gt;Paperclip&lt;/a&gt; for all of our file attachments, which adds 4 database fields to represent each attachment (for an attachment named &lt;code&gt;image&lt;/code&gt; you end up with &lt;code&gt;image_file_name&lt;/code&gt;, &lt;code&gt;image_content_type&lt;/code&gt;, &lt;code&gt;image_file_size&lt;/code&gt;, and &lt;code&gt;image_updated_at&lt;/code&gt;).  None of these fields needs to actually be displayed to the user, nor will they ever edit them directly.&lt;/p&gt;
+      &lt;p&gt;At &lt;a href=&quot;http://www.twinenginelabs.com&quot;&gt;Twin Engine Labs&lt;/a&gt; we recently discovered the joy that is Jose Valim&amp;#8217;s &lt;a href=&quot;https://github.com/josevalim/inherited_resources&quot;&gt;Inherited Resources&lt;/a&gt;.  For the unfamiliar, it takes all those generic &lt;span class=&quot;caps&quot;&gt;REST&lt;/span&gt; actions and views and abstracts them all out for you, so your controllers simply inherit from &lt;code&gt;InheritedResources::Base&lt;/code&gt; and you get the basics for free.  For us, that means that a large portion of our web app admins are already written for us; we just tweak as needed.&lt;/p&gt;
+&lt;p&gt;My one real gripe, thus far, has been that the generated views Inherited Resources gives you are just too generic.  It defaults to displaying all the &lt;code&gt;attributes&lt;/code&gt; for an ActiveRecord resource on the form, show, and index pages, and many of those fields are simply of no use.  We use &lt;a href=&quot;https://github.com/thoughtbot/paperclip&quot;&gt;Paperclip&lt;/a&gt; for all of our file attachments, which adds 4 database fields to represent each attachment (for an attachment named &lt;code&gt;image&lt;/code&gt; you end up with &lt;code&gt;image_file_name&lt;/code&gt;, &lt;code&gt;image_content_type&lt;/code&gt;, &lt;code&gt;image_file_size&lt;/code&gt;, and &lt;code&gt;image_updated_at&lt;/code&gt;).  None of these fields needs to actually be displayed to the user, nor will the users ever edit them directly.&lt;/p&gt;
 &lt;p&gt;Then there&amp;#8217;s default Rails fields like &lt;code&gt;created_at&lt;/code&gt; and &lt;code&gt;updated_at&lt;/code&gt;, plus all your foreign keys for &lt;code&gt;belongs_to&lt;/code&gt; associations.  While you may want to display the date fields, you generally don&amp;#8217;t want those editable by a user, and I&amp;#8217;d rather show the &lt;code&gt;belongs_to&lt;/code&gt; association directly than the foreign key.  On top of this, we use &lt;a href=&quot;https://github.com/justinfrench/formtastic&quot;&gt;Formtastic&lt;/a&gt; for generating forms, so if I could build a more reliable list of attributes and associations that were editable by a user, I could just hand them off to &lt;code&gt;semantic_form_for&lt;/code&gt; and let it works its magic.&lt;/p&gt;
-&lt;p&gt;Enter the &lt;a href=&quot;http://en.wikipedia.org/wiki/Decorator_pattern&quot;&gt;Decorator&lt;/a&gt; pattern.  By creating a generic decorator to wrap my &lt;code&gt;ActiveRecord&lt;/code&gt; resource_classes, I could use Rails&amp;#8217; magic to get more refined list, then just use that decorator in all the Inherited Resources views.  My base Decorator looks like this:&lt;/p&gt;
+&lt;p&gt;Enter the &lt;a href=&quot;http://en.wikipedia.org/wiki/Decorator_pattern&quot;&gt;Decorator&lt;/a&gt; pattern.  By creating a generic decorator to wrap my &lt;code&gt;ActiveRecord&lt;/code&gt; resource_classes, I could use Rails&amp;#8217; magic to get a more refined list, then just use that decorator in all the Inherited Resources views.  My base Decorator looks like this:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;InheritedResources&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Decorator&lt;/span&gt;
   
@@ -65,7 +65,7 @@
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Next I added a helper method to our &lt;code&gt;ResourceController&lt;/code&gt; that all of our admin controllers inherit from:&lt;/p&gt;
+&lt;/div&gt;&lt;p&gt;Next I added a helper method to our &lt;code&gt;ResourceController&lt;/code&gt; which all of our admin controllers inherit from:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;n&quot;&gt;helper_method&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:decorated_resource_class&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;decorated_resource_class&lt;/span&gt;
