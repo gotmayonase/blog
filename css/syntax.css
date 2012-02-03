@@ -57,3 +57,6 @@
 .highlight .vg { color: #008080 } /* Name.Variable.Global */
 .highlight .vi { color: #008080 } /* Name.Variable.Instance */
 .highlight .il { color: #009999 } /* Literal.Number.Integer.Long */
+.highlight .html .nt { color: #A5C261 }
+.highlight .html .na { color: #A5C261 }
+.highlight .html .s { color: #6D9CBE }

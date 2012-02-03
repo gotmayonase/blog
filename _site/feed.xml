@@ -4,12 +4,66 @@
   <title>Mike Mayo</title>
   <link href="http://mikemayo.org/feed.xml" rel="self"/>
   <link href="http://mikemayo.org/"/>
-  <updated>2011-12-22T10:18:06-06:00</updated>
+  <updated>2012-02-03T01:48:34-06:00</updated>
   <id>http://mikemayo.org/</id>
   <author>
     <name>Jeff Mike Mayo</name>
   </author>
 
+  
+  <entry>
+    <title type="html">Rendering a collection of partials with layouts and content_for</title>
+    <link href="http://mikemayo.org/2012/rendering-a-collection-of-partials-with-content_for"/>
+    <id>http://mikemayo.org/2012/rendering-a-collection-of-partials-with-content_for</id>
+    <updated>2012-02-02T00:00:00-06:00</updated>
+    <content type="html">
+      &lt;p&gt;While working on a Rails project recently, I ran into an interesting dilemma when trying to &lt;span class=&quot;caps&quot;&gt;DRY&lt;/span&gt; up a big mess of partials that I had accumulated over several months.  Below I&amp;#8217;ll describe the scenario and show a way to get around some of the limitations in default Rails partial rendering.&lt;/p&gt;
+&lt;h3&gt;The Problem:&lt;/h3&gt;
+&lt;p&gt;You have several partials in your Rails project that are nearly identical, and you&amp;#8217;re sick of all this un-&lt;span class=&quot;caps&quot;&gt;DRY&lt;/span&gt; code laying around. Some (or all) of these partials can be loaded multiple times on a single page via a collection of objects. Never fear, Rails has a solution for you (sort of)!&lt;/p&gt;
+&lt;h4&gt;Did you know:&lt;/h4&gt;
+&lt;p&gt;Partials can be &lt;a href=&quot;http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials&quot;&gt;rendered with a layout&lt;/a&gt;? I know, my mind was blown too! The only caveat I&amp;#8217;ve found is that the layout file needs to be in the same directory as the partial, as opposed to the layouts directory, though I&amp;#8217;m not sure if this is a hard rule or just the default behavior.&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%= render :partial =&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;my_partial_file&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:layout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;my_layout_file&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;&lt;p&gt;Another fun fact, you can call:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%= render :partial =&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;my_partial_file&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:collection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@my_collection_of_objects&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;&lt;p&gt;or if the objects in your collection have a class name that matches your partial name:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;%=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@my_collection_of_objects&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;&lt;p&gt;and Rails will render each of those objects into the partial.  Supposedly this is faster than looping over the objects and rendering manually, since Rails only has to lookup the partial once. One downside is that you can&amp;#8217;t (as far as I can tell) also pass a layout to this method call.&lt;/p&gt;
+&lt;p&gt;Anyways on to solving the problem at hand&amp;#8230;&lt;/p&gt;
+&lt;h3&gt;The Solution:&lt;/h3&gt;
+&lt;p&gt;The most obvious solution to &lt;span class=&quot;caps&quot;&gt;DRY&lt;/span&gt; up similar partials is to use the layout parameter and move all your repetitive markup to a layout view. Sometimes things don&amp;#8217;t get to be that simple, though. If, for instance, you want to have a named yield inside your partial layout, you&amp;#8217;ll quickly find yourself frustrated. Here&amp;#8217;s an example:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;c1&quot;&gt;# _layout.html.erb&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;special_content&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%= yield :special_content %&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;sx&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;sx&quot;&gt;&amp;lt;div id=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&amp;quot;content&amp;quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;&amp;lt;%=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;yield&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;sx&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# _partial.html.erb&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;% content_for &lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:special_content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;This is very special&amp;#39;&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;sx&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;This&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;so&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;special&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/p&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;&lt;p&gt;For some reason, named yields inside partial layouts don&amp;#8217;t behave correctly. Instead of your expected output, you&amp;#8217;ll end up with:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;special_content&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;This is not so special&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;content&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;This is not so special&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;&lt;p&gt;After digging around in the code, I found that you can call &lt;code&gt;content_for&lt;/code&gt; in the place of &lt;code&gt;yield&lt;/code&gt; with only the name argument and achieve similar results, however this has another issue which will require a little backstory to explain.&lt;/p&gt;
+&lt;p&gt;The content for views is handled by what Rails calls a &lt;code&gt;ViewFlow&lt;/code&gt;. It exposes methods for a &lt;code&gt;content&lt;/code&gt; hash, and &lt;code&gt;yield&lt;/code&gt; and &lt;code&gt;content_for&lt;/code&gt; subsequently use those methods to access and populate the content. However when you access that content, it&amp;#8217;s not destructive; it never removes the content from that hash. This causes a problem if you&amp;#8217;re using &lt;code&gt;content_for&lt;/code&gt; in a loop, because every call you&amp;#8217;re just tacking more content onto the same hash key.&lt;/p&gt;
+&lt;p&gt;What you really need for the above scenario is a way to, when accessing the content from the &lt;code&gt;ViewFlow&lt;/code&gt;, remove it from that hash so you have a clean slate on the next iteration. This is actually trivial to accomplish because the &lt;code&gt;ViewFlow&lt;/code&gt;, and therefore it&amp;#8217;s &lt;code&gt;content&lt;/code&gt; hash, are available in the view. Just add a method like this to your &lt;code&gt;ApplicationHelper&lt;/code&gt; and use it in place of your normal named yields:&lt;/p&gt;
+&lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;yield_content!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content_key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;view_flow&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delete&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content_key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;&lt;p&gt;Now when looping through your collection and rendering your partials, your content should render as expected. My next goal is to get layouts behaving with rendering partials using the &lt;code&gt;:collection&lt;/code&gt; param, though I think I may have different behavior expectations than the Rails designers do on that topic.&lt;/p&gt;
+    </content>
+  </entry>
   
   <entry>
     <title type="html">Using Decorators to improve your Inherited Resources experience</title>
