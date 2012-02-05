@@ -1,0 +1,65 @@
+---
+layout: post
+title: How I learned to stop worrying and love REST
+excerpt: Though it might be one of the most abused terms in web development today, learning and using REST correctly can make life much easier for you.
+published: true
+category: 
+keywords: REST, rails, ios
+---
+
+Buzzwords can be a funny thing. I've been writing (what I thought were) 'RESTful' web apps and APIs for five years now, and it wasn't until a couple of weeks ago that I really began to understand what that meant. I'd like to share my 'AHA' moment, and give a concrete example of why following the "REST":http://en.wikipedia.org/wiki/Representational_state_transfer style correctly can save you headaches in the long run.
+
+<div id="tldr">
+_TL;DR: A RESTful API should provide hypertext links to drive traversal through itself, instead of forcing the client to craft their own URIs._
+</div>
+
+h3. A little backstory
+
+At "Twin Engine Labs":www.twinenginelabs.com, we develop iOS apps that are generally backed by Rails REST APIs. We've been doing this for a little over a year now, and are constantly refining our process. A few weeks ago I built my first iOS app (which got approved this week) as well as the JSON API backend for it. I take a lot of pride in my code, and I have to say I was quite pleased with how everything turned out. The project felt clean, things were refactored as I felt they needed to be, and nothing was overly complex or ugly.  However, at the end of the project lifecycle, I started looking to increase performance by adding basic Rails caching where it was appropriate, and things took an unhappy turn.
+
+At this point, the iOS app was complete and had been submitted to the app store. If you've ever gone through this process, you know the delays can be...annoying, and resubmitting is essentially out of the question if you have a deadline to worry about. None of this should have been a problem, since the API was frozen and I was just making internal performance changes, but then I started looking at caching one of the main actions of the application.
+
+It's a fairly simple index action that returns a list of JSON objects, but the rub comes in that it's paginated. This action is consumed by a TableView that has infinite scrolling on it, so we only load 25 at a time to make things snappier on the iPhone. We handle all of our pagination using the wonderful "will_paginate":https://github.com/mislav/will_paginate gem, where page information is passed as query params like: @www.myapi.com/index_action?page=1&per_page=25@. Unfortunately default Rails page caching doesn't store query params, so you'll always cache the first page a user hits. The "suggested means of dealing with this":http://guides.rubyonrails.org/caching_with_rails.html#page-caching is to, instead of using query params, pass your pagination params through the URI, transforming the above example to this: @www.myapi.com/index_action/page/1/per_page/25@.
+
+This would be trivial to implement on the Rails side, but since my iOS application was crafting these paginated URIs it would mean a change to the iOS code and a resubmission to the app store.  The action was fast enough that I moved caching it to a lower priority, but it ate at me that I hadn't known about the pitfall earlier.
+
+h3. The AHA moment
+
+It wasn't until several weeks later that I came upon the perfect solution to my problem...at least it would have been had I used it from the beginning as I should have.
+
+I've got about a 30 minute bike commute every morning, and I find the best use of that time is to listen to tech podcasts. More specifically I've been listening to the "Ruby Rogues":www.rubyrogues.com podcast for the past few weeks; catching up on the backlog as well as keeping up with the latest episodes as they come out. Recently I listened to the "REST Done Right":http://rubyrogues.com/rest-done-right-with-steve-klabnik/ episode where they had Steve Klabnik on as a guest panelist. If you follow Steve on "twitter":https://twitter.com/#!/steveklabnik or read his "blog":http://blog.steveklabnik.com/, you'll know he's a big proponent of REST and does a lot to educate developers on its proper usage.
+
+In that podcast they mentioned that one of the core points of REST is that the resources should provide the means to traverse the API. Think of it like links on a webpage; we don't expect the user to know our URL format and manually type it in when they want to view the next link. Instead we provide them hyperlinks so they can easily traverse our sites. A REST API should function the same way; when you provide someone a list of JSON objects, you should also provide the URI to access each of those objects, or, in the case of my pagination example, the URI to retrieve the next page of results. To quote Roy Fielding:
+
+bq. A REST API should be entered with no prior knowledge beyond the initial URI (bookmark) and set of standardized media types that are appropriate for the intended audience (i.e., expected to be understood by any client that might use the API). From that point on, all application state transitions must be driven by client selection of server-provided choices that are present in the received representations or implied by the user’s manipulation of those representations. ^"1":#footnote1^
+
+Steve Klabnik also talks about this very issue in his wonderful article titled "Haters gonna HATEOAS":http://timelessrepo.com/haters-gonna-hateoas.  (HATEOAS stands for 'Hypertext As The Engine Of Application State' and refers to using hypertext to direct an API consumer through the application).  You should definitely read his article to get a great explanation of how it should work and how/why most people aren't currently doing it.
+
+So while listening to this podcast, somewhere on the bike path between the office and home, it hit me: Instead of crafting the paginated URI in my iOS client, I should have been crafting that URI on the Rails side and sending it through along with my list of JSON objects. I'd actually dealt with this exact format on the iOS side when I was consuming the Facebook search API. Here is an example of how the Facebook Graph API handles pagination:
+
+{% highlight ruby %}
+#http://graph.facebook.com/search?type=Page&q=dcuocentral
+{
+  "data": [
+    {
+      "name": "DCUO Central",
+      "category": "Website",
+      "id": "141968085865824"
+    }
+  ],
+  "paging": {
+    "next": "http://graph.facebook.com/search?type=Page&q=dcuocentral&limit=25&offset=25"
+  }
+}
+{% endhighlight %}
+
+All you have to do is pluck the @paging@ key out of the JSON and hit that URI for your next page (though they annoyingly provide that URI even if there are no more records to be returned).
+
+By following the REST style, I would have saved myself either _A)_ having to alter my iOS code and resubmit to the store, or _B)_ time spent researching alternate caching methods and implementing them in Rails. As it stands, my partially-RESTful API is going to cost me (and possibly the client) more time before we can call the project finished.
+
+All of that said, I think that Rails does an amazing job of making it easy to implement REST. I've been doing a large part of it without even really understanding it. I'm not sure how well it works when you want to go all the way, but that's something I intend to explore as I learn more about REST and build APIs in the months to come. I'm also eagerly awaiting Steve Klabnik's book "Get Some Rest":http://getsomere.st/, which looks to be a great resource on developing RESTful applications in Rails as well as explaining the details of REST in a more approachable way.
+
+<div id="post_footer">
+h4. Footnotes
+#(#footnote1) "REST APIs must be hypertext-driven"::http://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven, Roy Fielding
+</div>

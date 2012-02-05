@@ -419,3 +419,37 @@ ol li {
   list-style-type: decimal;
   margin-bottom: 7px;
 }
+
+.previous {
+  float: left;
+}
+
+.next {
+  float: right;
+}
+
+.pagination {
+  border-top: 1px solid #666;
+  padding-top: 10px;
+  margin-top: 30px;
+  text-align: center;
+}
+
+.page_number {
+  width: 100px;
+  margin: 0 auto;
+}
+
+.page-container {
+  width: 75%;
+  float: left;
+}
+#post_footer {
+  font-size: 12px;
+  color: #333;
+  margin-top: 20px;
+}
+
+#tldr {
+  font-size: 12px;
+}

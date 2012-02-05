@@ -1,1 +1,2 @@
 permalink: /:year/:title
+paginate: 5

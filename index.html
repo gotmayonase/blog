@@ -1,11 +1,11 @@
 ---
 layout: default
 home: true
-title: Bicycling enthusiast and Ruby/Rails developer @ <a href="http://twinenginelabs.com" alt="Twin Engine Labs" title="Twin Engine Labs"><img width="247" height="60" alt="Twin Engine Labs" title="Twin Engine Labs" src="/images/twinenginelogo.png" /></a>, Shreveport, LA.
+title: Cycling enthusiast and Ruby/Rails developer @ <a href="http://twinenginelabs.com" alt="Twin Engine Labs" title="Twin Engine Labs"><img width="247" height="60" alt="Twin Engine Labs" title="Twin Engine Labs" src="/images/twinenginelogo.png" /></a>, Shreveport, LA.
 excerpt: Mike Mayo; Bicycling enthusiast and Ruby/Rails developer @ Twin Engine Labs, Shreveport, LA.
 ---
 
-{% for post in site.posts limit:10 %}
+{% for post in paginator.posts %}
   <div class="post">
     <h3><a href="{{ post.url }}/">{{ post.title }}</a></h3>
     <p class="date">{{ post.date | date_to_string }}
@@ -16,3 +16,25 @@ excerpt: Mike Mayo; Bicycling enthusiast and Ruby/Rails developer @ Twin Engine 
     <p>{{ post.excerpt }}</p>
   </div>
 {% endfor %}
+
+<!-- Pagination links -->
+<div class="pagination">
+  {% if paginator.previous_page %}
+    {% if paginator.previous_page == 1 %}
+      <a href="/" class="previous">Previous</a>
+    {% else %}
+      <a href="/page{{paginator.previous_page}}" class="previous">Previous</a>
+    {% endif %}
+  {% else %}
+    <span class="previous">Previous</span>
+  {% endif %}
+  <div class='page-container'>
+    <span class="page_number ">Page: {{paginator.page}} of {{paginator.total_pages}}</span>
+  </div>
+  {% if paginator.next_page %}
+    <a href="/page{{paginator.next_page}}" class="next ">Next</a>
+  {% else %}
+    <span class="next ">Next</span>
+  {% endif %}
+</div>
+<div style="clear: both"></div>
