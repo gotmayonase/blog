@@ -7,6 +7,8 @@ category:
 keywords: REST, rails, ios
 ---
 
+<img src="/images/rest_strangelove.jpg" />
+
 Buzzwords can be a funny thing. I've been writing (what I thought were) 'RESTful' web apps and APIs for five years now, and it wasn't until a couple of weeks ago that I really began to understand what that meant. I'd like to share my 'AHA' moment, and give a concrete example of why following the "REST":http://en.wikipedia.org/wiki/Representational_state_transfer style correctly can save you headaches in the long run.
 
 <div id="tldr">
