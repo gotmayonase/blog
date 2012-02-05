@@ -5,6 +5,7 @@ excerpt: Though it might be one of the most abused terms in web development toda
 published: true
 category: 
 keywords: REST, rails, ios
+image: /images/rest_strangelove_small.jpg
 ---
 
 <img src="/images/rest_strangelove.jpg" />

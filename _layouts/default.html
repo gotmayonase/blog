@@ -6,6 +6,9 @@
   <meta name="viewport" content="width=550, maximum-scale=1.0" />
   <meta name="keywords" content="mike mayo, mikemayo{% if page.keywords %}, {{page.keywords}}{% endif %}" />
   <meta name="description" content="{{ page.excerpt }}" />
+  {% if page.image %}
+  <meta property="og:image" content="{{ page.image }}"/>
+  {% endif %}
   <title>
     {% unless page.home %}{{ page.title }} - {% endunless %} Mike Mayo
   </title>
