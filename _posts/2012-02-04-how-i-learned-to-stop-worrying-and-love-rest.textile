@@ -63,5 +63,5 @@ All of that said, I think that Rails does an amazing job of making it easy to im
 
 <div id="post_footer">
 h4. Footnotes
-#(#footnote1) "REST APIs must be hypertext-driven"::http://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven, Roy Fielding
+#(#footnote1) "REST APIs must be hypertext-driven":http://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven, Roy Fielding
 </div>
