@@ -362,22 +362,31 @@ div#disqus_thread{
   margin: 20px 0px 0px 0px;
 }
 
+#dsq-subscribe{
+  display:none !important;
+}
+
 p.article_date{
   float:left;
 }
 
 span.article_buttons{
   margin:20px 0;
-  float:right;
-  text-align: right;
+  float:left;
+  text-align: left;
+  position: relative;
+  display: block;
+  width: 100%;
 }
 
 span.article_buttons a{
-  display:block;
+  margin-right: 5px;
 }
 
 a:hover span.balloon{
   display: inline;
+  position: absolute;
+  top: -20px;
 }
 
 span.balloon{
