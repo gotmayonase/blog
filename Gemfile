@@ -1,6 +1,6 @@
 source :rubygems
 
-gem 'rack-jekyll', :git => 'https://github.com/adaoraul/rack-jekyll.git'
+gem 'rack-jekyll', '0.3.5'
 
 group :development do
   gem 'RedCloth'
