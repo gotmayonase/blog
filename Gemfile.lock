@@ -1,23 +1,34 @@
+GIT
+  remote: https://github.com/adaoraul/rack-jekyll.git
+  revision: d9cbc59121c4441820353485fbacd4d5295c5cd3
+  specs:
+    rack-jekyll (0.3.7)
+      jekyll (~> 0.11.0)
+      rack (~> 1.3.2)
+
 GEM
   remote: http://rubygems.org/
   specs:
     RedCloth (4.2.9)
+    albino (1.3.3)
+      posix-spawn (>= 0.3.6)
     classifier (1.3.3)
       fast-stemmer (>= 1.0.0)
-    directory_watcher (1.4.0)
+    directory_watcher (1.4.1)
     fast-stemmer (1.0.0)
-    jekyll (0.10.0)
-      classifier (>= 1.3.1)
-      directory_watcher (>= 1.1.1)
-      liquid (>= 1.9.0)
-      maruku (>= 0.5.9)
-    liquid (2.2.2)
+    jekyll (0.11.2)
+      albino (~> 1.3)
+      classifier (~> 1.3)
+      directory_watcher (~> 1.1)
+      kramdown (~> 0.13)
+      liquid (~> 2.3)
+      maruku (~> 0.5)
+    kramdown (0.13.4)
+    liquid (2.3.0)
     maruku (0.6.0)
       syntax (>= 1.0.0)
-    rack (1.3.0)
-    rack-jekyll (0.3.5)
-      jekyll
-      rack
+    posix-spawn (0.3.6)
+    rack (1.3.6)
     syntax (1.0.0)
 
 PLATFORMS
@@ -25,4 +36,4 @@ PLATFORMS
 
 DEPENDENCIES
   RedCloth
-  rack-jekyll
+  rack-jekyll!
