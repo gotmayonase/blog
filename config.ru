@@ -1,4 +1,3 @@
-require 'rubygems'
-require 'rack/jekyll'
+Bundler.require(:default, :production) if defined?(Bundler)
 
 run Rack::Jekyll.new
