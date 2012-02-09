@@ -1,0 +1,44 @@
+---
+layout: post
+title: Deploying Jekyll sites to Heroku with Rack-Jekyll
+excerpt: Heroku is a phenomenal service for deploying small apps since they have a great free plan.  Rack-Jekyll is a gem that makes deploying a Jekyll site to Heroku easy, but there are a couple gotchas with making the current version work.
+published: true
+category: 
+keywords: heroku, rack, jekyll, rack-jekyll, deploy, bug, content length, header
+image:
+---
+
+This will just a quick guide to show how to get your Jekyll site going on "Heroku":http://heroku.com.  I'm going to be working off the assumption that you've already got a Heroku account setup, so I won't be going through any of that here.
+
+First you need to install "Bundler":http://gembundler.com and add a Gemfile to your project if you don't already have one. The gem we need is called "Rack-Jekyll":https://github.com/adaoraul/rack-jekyll.  It basically just provides a little Rack middleware to serve your statically-generated site to Heroku's thins.  Unfortunately the latest version in Rubygems depends on some very old versions of gems so you'll need to install from git.
+
+Add the following line to your Gemfile:
+
+<div class="longer">
+{% highlight ruby %}
+gem 'rack-jekyll', :git => 'https://github.com/adaoraul/rack-jekyll.git', :require => 'rack/jekyll'
+{% endhighlight %}
+</div>
+
+Next create a file named @config.ru@ in your project, if it doesn't already exist, add the following to it:
+
+{% highlight ruby %}
+require 'bundler'
+Bundler.require(:default, :production)
+
+run Rack::Jekyll.new
+{% endhighlight %}
+
+The guide on GitHub is different than the above advice, but I kept getting errors when it tried to require 'rack/jekyll' until I modified my @config.ru@ to look like this.
+
+Now you should be clear to deploy to Heroku as usual (@git push heroku master@).
+
+h4. An interesting sidenote
+
+Up until recently I was deploying my site with rack-jekyll version 0.3.5 (current version in RubyGems is 0.3.7). For a long time I was experiencing an issue where any images I uploaded (after switching to this deploy method) had the bottom 10% or so cut off when served from Heroku. At first it was just a single image and I thought it just a fluke (and I hadn't written a new blog post in a long time), so I didn't mess with it. But then with my latest blog post I ran into the same issue again.
+
+I finally contacted Heroku support, and after a bit of back-and-forth they determined that Rack-Jekyll was responding with an incorrect @Content-Length@ header. I tried upgrading to 0.3.7 immediately, but the RubyGems version called a whole new slew of headaches, so I gave up and dug into the code. Turned out that the old version was reading in the file, turning the body into a string, calling @.length@ off that string, and passing that as the content length. This is the incorrect way to handle this, and there are a couple of better ways to do it.  Since we're reading the file in anyways, an easy way is just to use @file.size@.  Another option, if you're using a string, is to call @"string".bytesize@.
+
+Anyways, I eventually discovered that the version of Rack-Jekyll on GitHub had been updated to current versions of the important gems, and already had the fix in place, so I just switched over to using that instead.
+
+Cool story bro.

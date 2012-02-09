@@ -4,11 +4,11 @@
   <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta name="viewport" content="width=550, maximum-scale=1.0" />
-  <meta name="keywords" content="mike mayo, mikemayo, autohyde,auto-hyde,jekyll,ruby" />
-  <meta name="description" content="If you were looking for an easy way to rebuild your Jekyll site after a push to GitHub, here it is." />
+  <meta name="keywords" content="mike mayo, mikemayo, heroku, rack, jekyll, rack-jekyll, deploy, bug, content length, header" />
+  <meta name="description" content="Heroku is a phenomenal service for deploying small apps since they have a great free plan.  Rack-Jekyll is a gem that makes deploying a Jekyll site to Heroku easy, but there are a couple gotchas with making the current version work." />
   
   <title>
-    AutoHyde 0.1.1 Released -  Mike Mayo
+    Deploying Jekyll sites to Heroku with Rack-Jekyll -  Mike Mayo
   </title>
   <link rel="stylesheet" href="/css/reset.css" type="text/css" />
   
@@ -63,36 +63,38 @@
           </ul>
           <hr class="right"/>
         </div> <!-- end #header -->
-        <h2>AutoHyde 0.1.1 Released</h2>
+        <h2>Deploying Jekyll sites to Heroku with Rack-Jekyll</h2>
         
 
 <p class="article_date date">
-  10 Dec 2010
+  08 Feb 2012
 </p>
 
 <hr/>
 
 <div id="content">
-	<p>With the launch of this blog, I&#8217;ve recently come to enjoy the wonder that is <a href="https://github.com/mojombo/jekyll">Jekyll</a>.  For those unfamiliar, it&#8217;s a dead-simple, blog-aware, static site generator built with Ruby, and is even used by GitHub for their Pages.</p>
-<p>My only complaint has been with automating the site regeneration and deployment.  I wanted a way to easily integrate it with GitHub&#8217;s post-receive hooks so that the site is pulled and regenerated on my server after any code is pushed.</p>
-<p>AutoHyde makes that all possible.  Once installed, all you need to do is run the executable (with appropriate options) and it will start up a lightweight Sinatra server with a single route, &#8216;/auto-hyde.&#8217;  Then just point your GitHub post-receive hook at <code>http://your-server.com/auto-hyde</code> and you&#8217;re ready to go.</p>
-<p>Here is a list of the options available from the command-line:</p>
-<div class="highlight"><pre><code class="console"><span class="go">  $ auto-hyde -h</span>
-<span class="go">  Usage: auto-hyde [options]</span>
-<span class="go">    -e, --email EMAIL     Send email notification of failures to this email address</span>
-<span class="go">    -d, --jekyll-dir DIR  Location of your Jekyll project directory, defaults to this dir</span>
-<span class="go">    -b, --build-dir DIR   Location Jekyll will build your site to, defaults to &#39;./_site&#39;</span>
-<span class="go">    -p, --port PORT       Port for Sinatra to run on, defaults to 4567</span>
-<span class="go">        --pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off</span>
-<span class="go">    -h, --help            Show this message</span>
+	<p>This will just a quick guide to show how to get your Jekyll site going on <a href="http://heroku.com">Heroku</a>.  I&#8217;m going to be working off the assumption that you&#8217;ve already got a Heroku account setup, so I won&#8217;t be going through any of that here.</p>
+<p>First you need to install <a href="http://gembundler.com">Bundler</a> and add a Gemfile to your project if you don&#8217;t already have one. The gem we need is called <a href="https://github.com/adaoraul/rack-jekyll">Rack-Jekyll</a>.  It basically just provides a little Rack middleware to serve your statically-generated site to Heroku&#8217;s thins.  Unfortunately the latest version in Rubygems depends on some very old versions of gems so you&#8217;ll need to install from git.</p>
+<p>Add the following line to your Gemfile:</p>
+<div class="longer">
+<div class="highlight"><pre><code class="ruby"><span class="n">gem</span> <span class="s1">&#39;rack-jekyll&#39;</span><span class="p">,</span> <span class="ss">:git</span> <span class="o">=&gt;</span> <span class="s1">&#39;https://github.com/adaoraul/rack-jekyll.git&#39;</span><span class="p">,</span> <span class="ss">:require</span> <span class="o">=&gt;</span> <span class="s1">&#39;rack/jekyll&#39;</span>
 </code></pre>
 </div>
-<p>The most important options are <code>-j</code> and <code>-b</code>, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will <code>cd</code> into your blog dir, <code>git pull</code>, and then use the <code>jekyll</code> command line to regenerate the site.</p>
-<p>The gem is already available via Gemcutter/Rubygems, just run:</p>
-<div class="highlight"><pre><code class="console"><span class="go">  $ gem install auto-hyde</span>
+</div>
+<p>Next create a file named <code>config.ru</code> in your project, if it doesn&#8217;t already exist, add the following to it:</p>
+<div class="highlight"><pre><code class="ruby"><span class="nb">require</span> <span class="s1">&#39;bundler&#39;</span>
+<span class="no">Bundler</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="ss">:default</span><span class="p">,</span> <span class="ss">:production</span><span class="p">)</span>
+
+<span class="n">run</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Jekyll</span><span class="o">.</span><span class="n">new</span>
 </code></pre>
 </div>
-<p>If you&#8217;re interested, the code is also up on my <a href="https://github.com/gotmayonase/auto-hyde">GitHub repo</a>.  I must admit that I haven&#8217;t tested the email functionality yet (it uses Pony), as my <span class="caps">ISP</span> won&#8217;t allow <span class="caps">SMTP</span> out.  So if anyone notices a bug there, or anywhere else, please let me know.</p>
+<p>The guide on GitHub is different than the above advice, but I kept getting errors when it tried to require &#8216;rack/jekyll&#8217; until I modified my <code>config.ru</code> to look like this.</p>
+<p>Now you should be clear to deploy to Heroku as usual (<code>git push heroku master</code>).</p>
+<h4>An interesting sidenote</h4>
+<p>Up until recently I was deploying my site with rack-jekyll version 0.3.5 (current version in RubyGems is 0.3.7). For a long time I was experiencing an issue where any images I uploaded (after switching to this deploy method) had the bottom 10% or so cut off when served from Heroku. At first it was just a single image and I thought it just a fluke (and I hadn&#8217;t written a new blog post in a long time), so I didn&#8217;t mess with it. But then with my latest blog post I ran into the same issue again.</p>
+<p>I finally contacted Heroku support, and after a bit of back-and-forth they determined that Rack-Jekyll was responding with an incorrect <code>Content-Length</code> header. I tried upgrading to 0.3.7 immediately, but the RubyGems version called a whole new slew of headaches, so I gave up and dug into the code. Turned out that the old version was reading in the file, turning the body into a string, calling <code>.length</code> off that string, and passing that as the content length. This is the incorrect way to handle this, and there are a couple of better ways to do it.  Since we&#8217;re reading the file in anyways, an easy way is just to use <code>file.size</code>.  Another option, if you&#8217;re using a string, is to call <code>"string".bytesize</code>.</p>
+<p>Anyways, I eventually discovered that the version of Rack-Jekyll on GitHub had been updated to current versions of the important gems, and already had the fix in place, so I just switched over to using that instead.</p>
+<p>Cool story bro.</p>
 </div>
 
 <span class="article_buttons">

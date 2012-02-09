@@ -340,6 +340,11 @@ div#content pre
   margin: 0px 0px 0px -40px;
 }
 
+#content .longer pre {
+  width: 600px;
+  margin: 0px 0px 0px -70px;
+}
+
 div.notice
 {
   -moz-border-radius:5px;
