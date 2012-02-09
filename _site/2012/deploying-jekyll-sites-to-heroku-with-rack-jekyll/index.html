@@ -73,7 +73,8 @@
 <hr/>
 
 <div id="content">
-	<p>This will just a quick guide to show how to get your Jekyll site going on <a href="http://heroku.com">Heroku</a>.  I&#8217;m going to be working off the assumption that you&#8217;ve already got a Heroku account setup, so I won&#8217;t be going through any of that here.</p>
+	<p class="note">Note: Check out my <a href="http://dev.twinenginelabs.com/2012/How-to-make-a-blog-post-with-Jekyll/">article on the Twin Engine Labs engineering blog</a> for some Jekyll highlights and a mini-guide on creating your first blog post.</p>
+<p>This will just a quick guide to show how to get your Jekyll site going on <a href="http://heroku.com">Heroku</a>.  I&#8217;m going to be working off the assumption that you&#8217;ve already got a Heroku account setup, so I won&#8217;t be going through any of that here.</p>
 <p>First you need to install <a href="http://gembundler.com">Bundler</a> and add a Gemfile to your project if you don&#8217;t already have one. The gem we need is called <a href="https://github.com/adaoraul/rack-jekyll">Rack-Jekyll</a>.  It basically just provides a little Rack middleware to serve your statically-generated site to Heroku&#8217;s thins.  Unfortunately the latest version in Rubygems depends on some very old versions of gems so you&#8217;ll need to install from git.</p>
 <p>Add the following line to your Gemfile:</p>
 <div class="longer">

@@ -8,6 +8,8 @@ keywords: heroku, rack, jekyll, rack-jekyll, deploy, bug, content length, header
 image:
 ---
 
+p(note). Note: Check out my "article on the Twin Engine Labs engineering blog":http://dev.twinenginelabs.com/2012/How-to-make-a-blog-post-with-Jekyll/ for some Jekyll highlights and a mini-guide on creating your first blog post.
+
 This will just a quick guide to show how to get your Jekyll site going on "Heroku":http://heroku.com.  I'm going to be working off the assumption that you've already got a Heroku account setup, so I won't be going through any of that here.
 
 First you need to install "Bundler":http://gembundler.com and add a Gemfile to your project if you don't already have one. The gem we need is called "Rack-Jekyll":https://github.com/adaoraul/rack-jekyll.  It basically just provides a little Rack middleware to serve your statically-generated site to Heroku's thins.  Unfortunately the latest version in Rubygems depends on some very old versions of gems so you'll need to install from git.

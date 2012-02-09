@@ -468,3 +468,8 @@ ol li {
 #tldr {
   font-size: 12px;
 }
+
+p.note {
+  font-size: 12px;
+  font-style: italic;
+}
