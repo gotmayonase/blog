@@ -80,6 +80,7 @@
 <div id="tldr">
 <p><em>TL;DR: A RESTful <span class="caps">API</span> should provide hypertext links to drive traversal through itself, instead of forcing the client to craft their own URIs.</em></p>
 </div>
+<p>Many have complained about the font on my site, but I personally like it. If you&#8217;re having trouble with it though, just click <a href="javascript:void(0)" id="font-changer">here</a>.</p>
 <h3>A little backstory</h3>
 <p>At <a href="http://www.twinenginelabs.com">Twin Engine Labs</a>, we develop iOS apps that are generally backed by Rails <span class="caps">REST</span> APIs. We&#8217;ve been doing this for a little over a year now, and are constantly refining our process. A few weeks ago I built my first iOS app (which got approved this week) as well as the <span class="caps">JSON</span> <span class="caps">API</span> backend for it. I take a lot of pride in my code, and I have to say I was quite pleased with how everything turned out. The project felt clean, things were refactored as I felt they needed to be, and nothing was overly complex or ugly.  However, at the end of the project lifecycle, I started looking to increase performance by adding basic Rails caching where it was appropriate, and things took an unhappy turn.</p>
 <p>At this point, the iOS app was complete and had been submitted to the app store. If you&#8217;ve ever gone through this process, you know the delays can be&#8230;annoying, and resubmitting is essentially out of the question if you have a deadline to worry about. None of this should have been a problem, since the <span class="caps">API</span> was frozen and I was just making internal performance changes, but then I started looking at caching one of the main actions of the application.</p>
@@ -108,7 +109,8 @@
   <span class="p">}</span>
 <span class="p">}</span>
 </code></pre>
-</div><p>All you have to do is pluck the <code>paging</code> key out of the <span class="caps">JSON</span> and hit that <span class="caps">URI</span> for your next page (though they annoyingly provide that <span class="caps">URI</span> even if there are no more records to be returned).</p>
+</div>
+<p>All you have to do is pluck the <code>paging</code> key out of the <span class="caps">JSON</span> and hit that <span class="caps">URI</span> for your next page (though they annoyingly provide that <span class="caps">URI</span> even if there are no more records to be returned).</p>
 <p>By following the <span class="caps">REST</span> style, I would have saved myself either <em>A)</em> having to alter my iOS code and resubmit to the store, or <em>B)</em> time spent researching alternate caching methods and implementing them in Rails. As it stands, my partially-RESTful <span class="caps">API</span> is going to cost me (and possibly the client) more time before we can call the project finished.</p>
 <p>All of that said, I think that Rails does an amazing job of making it easy to implement <span class="caps">REST</span>. I&#8217;ve been doing a large part of it without even really understanding it. I&#8217;m not sure how well it works when you want to go all the way, but that&#8217;s something I intend to explore as I learn more about <span class="caps">REST</span> and build APIs in the months to come. I&#8217;m also eagerly awaiting Steve Klabnik&#8217;s book <a href="http://getsomere.st/">Get Some Rest</a>, which looks to be a great resource on developing RESTful applications in Rails as well as explaining the details of <span class="caps">REST</span> in a more approachable way.</p>
 <div id="post_footer">
@@ -169,5 +171,12 @@
 
   <script src="/js/jquery.js" type="text/javascript"></script>
   <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
 </body>
 </html>

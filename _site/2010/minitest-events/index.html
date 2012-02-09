@@ -80,7 +80,8 @@
   
   <span class="n">raise_event</span><span class="p">(</span><span class="ss">:run_anything_start</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>
 </code></pre>
-</div><p>As you can see it&#8217;s using a special RunAnythingEvent context object, whose definition looks like so:</p>
+</div>
+<p>As you can see it&#8217;s using a special RunAnythingEvent context object, whose definition looks like so:</p>
 <div class="highlight"><pre><code class="ruby">  <span class="k">class</span> <span class="nc">RunAnythingEvent</span> <span class="o">&lt;</span> <span class="no">BaseEvent</span>
     
     <span class="kp">attr_reader</span> <span class="ss">:runner</span><span class="p">,</span> <span class="ss">:type</span><span class="p">,</span> <span class="ss">:output</span><span class="p">,</span> <span class="ss">:suites</span><span class="p">,</span> <span class="ss">:options</span>
@@ -97,7 +98,8 @@
     
   <span class="k">end</span>
 </code></pre>
-</div><p>And here is an example of an event handler for this event:</p>
+</div>
+<p>And here is an example of an event handler for this event:</p>
 <div class="highlight"><pre><code class="ruby">  <span class="k">class</span> <span class="nc">RunAnythingStartHandler</span>
   
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
@@ -114,10 +116,12 @@
   
   <span class="k">end</span>
 </code></pre>
-</div><p>Which is registered by calling the following method off the class where the event was raised:</p>
+</div>
+<p>Which is registered by calling the following method off the class where the event was raised:</p>
 <div class="highlight"><pre><code class="ruby">  <span class="n">register_event_handler</span><span class="p">(</span><span class="ss">:run_anything_start</span><span class="p">,</span> <span class="no">RunAnythingStartHandler</span><span class="p">)</span>
 </code></pre>
-</div><p>This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (<code>MiniTest::Reporting</code>) which is enabled by default.</p>
+</div>
+<p>This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (<code>MiniTest::Reporting</code>) which is enabled by default.</p>
 <p>The next step, which I&#8217;ve already partially completed, is to create plugins that handle alternative output options like the progress bar and instafailing.  If you&#8217;re interested, the work is being done in the <a href="https://github.com/gotmayonase/minitest/tree/events">events branch</a> on my Github account.  Assuming Node.js doesn&#8217;t monopolize all my time, I hope to have it completed in the near future.  If you have any ideas, feel free to let me know.</p>
 </div>
 
@@ -171,5 +175,12 @@
 
   <script src="/js/jquery.js" type="text/javascript"></script>
   <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
 </body>
 </html>

@@ -90,16 +90,19 @@
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
   <span class="p">});</span>
 </code></pre>
-</div><p>This isn&#8217;t quite exactly what it was doing, but suffice it to say that the output I got wasn&#8217;t what I expected; it instead was this:</p>
+</div>
+<p>This isn&#8217;t quite exactly what it was doing, but suffice it to say that the output I got wasn&#8217;t what I expected; it instead was this:</p>
 <div class="highlight"><pre><code class="javascript">  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;stderr: &#39;</span> <span class="o">+</span> <span class="nx">data</span><span class="p">);</span> <span class="c1">// stderr: Expected output from my command</span>
   
   <span class="c1">// Logging the data in the view directly without string concat gave this:</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span> <span class="c1">// { 0: 23, 1: 82:, 3: 15, ... 60: 10, length: 61 }</span>
 </code></pre>
-</div><p>Needless to say, I was quite confused, until I logged the output on the server side and saw this:</p>
+</div>
+<p>Needless to say, I was quite confused, until I logged the output on the server side and saw this:</p>
 <div class="highlight"><pre><code class="console"><span class="go">  &lt;Buffer 0a 1b 5b 31 6d 70 72 6f 6a 65 63 74 5f 74 65 73 74 1b 5b 32 32 6d 0a&gt;</span>
 </code></pre>
-</div><p>A short google trip later and I found <a href="http://nodejs.org/api.html#buffers-2">this</a> in the node.js docs so I updated my code to call <code>data.toString('ascii')</code> and was rewarded with the output I expected.</p>
+</div>
+<p>A short google trip later and I found <a href="http://nodejs.org/api.html#buffers-2">this</a> in the node.js docs so I updated my code to call <code>data.toString('ascii')</code> and was rewarded with the output I expected.</p>
 <h4>Socket.IO</h4>
 <p>The next time-consuming bug came when trying to stream the output from the process to the view.  The build worker that handles running the process passes the output back to the controller, which then broadcasts it via the socket to the clients.  My initial code looked something along these lines:</p>
 <div class="highlight"><pre><code class="javascript">  <span class="nx">socket</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">({</span>
@@ -107,10 +110,12 @@
     <span class="s1">&#39;stderr&#39;</span><span class="o">:</span> <span class="nx">message</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">stderr</span>
   <span class="p">});</span>
 </code></pre>
-</div><p>However, I was unable to call <code>stdout</code> or <code>stderr</code> off the object passed in the broadcast, and when I logged to the browser console I found this odd output:</p>
+</div>
+<p>However, I was unable to call <code>stdout</code> or <code>stderr</code> off the object passed in the broadcast, and when I logged to the browser console I found this odd output:</p>
 <div class="highlight"><pre><code class="console"><span class="go">  ~j~{&#39;stdout&#39;:&#39;This would be stdout output.&#39;,&#39;stderr&#39;:null}</span>
 </code></pre>
-</div><p>At first glance I was confused, it looked like a <span class="caps">JSON</span> object or an object literal, but I had no access to any of the keys inside.  I thought to myself &#8220;The secret must lie in the &#8216;~j~&#8217; at the beginning,&#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:</p>
+</div>
+<p>At first glance I was confused, it looked like a <span class="caps">JSON</span> object or an object literal, but I had no access to any of the keys inside.  I thought to myself &#8220;The secret must lie in the &#8216;~j~&#8217; at the beginning,&#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:</p>
 <div class="highlight"><pre><code class="javascript">  <span class="c1">// Server-side</span>
   <span class="nx">socket</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">({</span>
     <span class="s1">&#39;stdout&#39;</span><span class="o">:</span> <span class="nx">message</span><span class="p">.</span><span class="nx">data</span><span class="p">.</span><span class="nx">stdout</span><span class="p">,</span> 
@@ -122,7 +127,8 @@
     <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">msg</span><span class="p">);</span>
   <span class="p">});</span>
 </code></pre>
-</div><p>By doing this, I was able to access <code>stdout</code> and <code>stderr</code> off the <code>data</code> variable.  I&#8217;m still uncertain what the object originally being passed to the view was, as it was neither <span class="caps">JSON</span> nor an object literal, but the solution got me where I needed to be.  If anyone can explain it further, please do so; I&#8217;d love to know what&#8217;s going on behind the scenes here.</p>
+</div>
+<p>By doing this, I was able to access <code>stdout</code> and <code>stderr</code> off the <code>data</code> variable.  I&#8217;m still uncertain what the object originally being passed to the view was, as it was neither <span class="caps">JSON</span> nor an object literal, but the solution got me where I needed to be.  If anyone can explain it further, please do so; I&#8217;d love to know what&#8217;s going on behind the scenes here.</p>
 <p>I think it highly likely that I&#8217;ve made some rookie mistakes here, but, as I stated before, I&#8217;m very new to Javascript so much of this is foreign to me.  I&#8217;m still trying to get past the Ruby/OO mindset and to wrap my brain around the JS way of doing things, but I&#8217;m getting there.  I&#8217;ll soon be reading <cite><a href="http://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742/ref=sr_1_1?ie=UTF8&amp;qid=1291968451&amp;sr=8-1">Javascript: The Good Parts</a></cite>, which I hope will get me over some of these newbie difficulties I&#8217;m running into.  If you have any tips or suggestions, or if you can point me towards any good guides on the subject, I&#8217;d love to hear from you.</p>
 </div>
 
@@ -176,5 +182,12 @@
 
   <script src="/js/jquery.js" type="text/javascript"></script>
   <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
 </body>
 </html>

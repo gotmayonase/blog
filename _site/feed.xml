@@ -4,7 +4,7 @@
   <title>Mike Mayo</title>
   <link href="http://mikemayo.org/feed.xml" rel="self"/>
   <link href="http://mikemayo.org/"/>
-  <updated>2012-02-06T20:42:53-06:00</updated>
+  <updated>2012-02-08T18:02:24-06:00</updated>
   <id>http://mikemayo.org/</id>
   <author>
     <name>Jeff Mike Mayo</name>
@@ -22,6 +22,7 @@
 &lt;div id=&quot;tldr&quot;&gt;
 &lt;p&gt;&lt;em&gt;TL;DR: A RESTful &lt;span class=&quot;caps&quot;&gt;API&lt;/span&gt; should provide hypertext links to drive traversal through itself, instead of forcing the client to craft their own URIs.&lt;/em&gt;&lt;/p&gt;
 &lt;/div&gt;
+&lt;p&gt;Many have complained about the font on my site, but I personally like it. If you&amp;#8217;re having trouble with it though, just click &lt;a href=&quot;javascript:void(0)&quot; id=&quot;font-changer&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 &lt;h3&gt;A little backstory&lt;/h3&gt;
 &lt;p&gt;At &lt;a href=&quot;http://www.twinenginelabs.com&quot;&gt;Twin Engine Labs&lt;/a&gt;, we develop iOS apps that are generally backed by Rails &lt;span class=&quot;caps&quot;&gt;REST&lt;/span&gt; APIs. We&amp;#8217;ve been doing this for a little over a year now, and are constantly refining our process. A few weeks ago I built my first iOS app (which got approved this week) as well as the &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; &lt;span class=&quot;caps&quot;&gt;API&lt;/span&gt; backend for it. I take a lot of pride in my code, and I have to say I was quite pleased with how everything turned out. The project felt clean, things were refactored as I felt they needed to be, and nothing was overly complex or ugly.  However, at the end of the project lifecycle, I started looking to increase performance by adding basic Rails caching where it was appropriate, and things took an unhappy turn.&lt;/p&gt;
 &lt;p&gt;At this point, the iOS app was complete and had been submitted to the app store. If you&amp;#8217;ve ever gone through this process, you know the delays can be&amp;#8230;annoying, and resubmitting is essentially out of the question if you have a deadline to worry about. None of this should have been a problem, since the &lt;span class=&quot;caps&quot;&gt;API&lt;/span&gt; was frozen and I was just making internal performance changes, but then I started looking at caching one of the main actions of the application.&lt;/p&gt;
@@ -50,7 +51,8 @@
   &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;All you have to do is pluck the &lt;code&gt;paging&lt;/code&gt; key out of the &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; and hit that &lt;span class=&quot;caps&quot;&gt;URI&lt;/span&gt; for your next page (though they annoyingly provide that &lt;span class=&quot;caps&quot;&gt;URI&lt;/span&gt; even if there are no more records to be returned).&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;All you have to do is pluck the &lt;code&gt;paging&lt;/code&gt; key out of the &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; and hit that &lt;span class=&quot;caps&quot;&gt;URI&lt;/span&gt; for your next page (though they annoyingly provide that &lt;span class=&quot;caps&quot;&gt;URI&lt;/span&gt; even if there are no more records to be returned).&lt;/p&gt;
 &lt;p&gt;By following the &lt;span class=&quot;caps&quot;&gt;REST&lt;/span&gt; style, I would have saved myself either &lt;em&gt;A)&lt;/em&gt; having to alter my iOS code and resubmit to the store, or &lt;em&gt;B)&lt;/em&gt; time spent researching alternate caching methods and implementing them in Rails. As it stands, my partially-RESTful &lt;span class=&quot;caps&quot;&gt;API&lt;/span&gt; is going to cost me (and possibly the client) more time before we can call the project finished.&lt;/p&gt;
 &lt;p&gt;All of that said, I think that Rails does an amazing job of making it easy to implement &lt;span class=&quot;caps&quot;&gt;REST&lt;/span&gt;. I&amp;#8217;ve been doing a large part of it without even really understanding it. I&amp;#8217;m not sure how well it works when you want to go all the way, but that&amp;#8217;s something I intend to explore as I learn more about &lt;span class=&quot;caps&quot;&gt;REST&lt;/span&gt; and build APIs in the months to come. I&amp;#8217;m also eagerly awaiting Steve Klabnik&amp;#8217;s book &lt;a href=&quot;http://getsomere.st/&quot;&gt;Get Some Rest&lt;/a&gt;, which looks to be a great resource on developing RESTful applications in Rails as well as explaining the details of &lt;span class=&quot;caps&quot;&gt;REST&lt;/span&gt; in a more approachable way.&lt;/p&gt;
 &lt;div id=&quot;post_footer&quot;&gt;
@@ -75,13 +77,16 @@
 &lt;p&gt;Partials can be &lt;a href=&quot;http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials&quot;&gt;rendered with a layout&lt;/a&gt;? I know, my mind was blown too! The only caveat I&amp;#8217;ve found is that the layout file needs to be in the same directory as the partial, as opposed to the layouts directory, though I&amp;#8217;m not sure if this is a hard rule or just the default behavior.&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%= render :partial =&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;my_partial_file&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:layout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;my_layout_file&amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Another fun fact, you can call:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Another fun fact, you can call:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;%= render :partial =&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;my_partial_file&amp;#39;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:collection&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&amp;gt;&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@my_collection_of_objects&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;or if the objects in your collection have a class name that matches your partial name:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;or if the objects in your collection have a class name that matches your partial name:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;%=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;render&lt;/span&gt; &lt;span class=&quot;vi&quot;&gt;@my_collection_of_objects&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;and Rails will render each of those objects into the partial.  Supposedly this is faster than looping over the objects and rendering manually, since Rails only has to lookup the partial once. One downside is that you can&amp;#8217;t (as far as I can tell) also pass a layout to this method call.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;and Rails will render each of those objects into the partial.  Supposedly this is faster than looping over the objects and rendering manually, since Rails only has to lookup the partial once. One downside is that you can&amp;#8217;t (as far as I can tell) also pass a layout to this method call.&lt;/p&gt;
 &lt;p&gt;Anyways on to solving the problem at hand&amp;#8230;&lt;/p&gt;
 &lt;h3&gt;The Solution:&lt;/h3&gt;
 &lt;p&gt;The most obvious solution to &lt;span class=&quot;caps&quot;&gt;DRY&lt;/span&gt; up similar partials is to use the layout parameter and move all your repetitive markup to a layout view. Sometimes things don&amp;#8217;t get to be that simple, though. If, for instance, you want to have a named yield inside your partial layout, you&amp;#8217;ll quickly find yourself frustrated. Here&amp;#8217;s an example:&lt;/p&gt;
@@ -97,7 +102,8 @@
 &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sx&quot;&gt;% content_for &lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:special_content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;&amp;#39;This is very special&amp;#39;&lt;/span&gt; &lt;span class=&quot;sx&quot;&gt;%&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;sx&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;This&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;so&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;special&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;sr&quot;&gt;/p&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;For some reason, named yields inside partial layouts don&amp;#8217;t behave correctly. Instead of your expected output, you&amp;#8217;ll end up with:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;For some reason, named yields inside partial layouts don&amp;#8217;t behave correctly. Instead of your expected output, you&amp;#8217;ll end up with:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;html&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;special_content&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;This is not so special&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
@@ -105,14 +111,16 @@
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;This is not so special&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/div&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;After digging around in the code, I found that you can call &lt;code&gt;content_for&lt;/code&gt; in the place of &lt;code&gt;yield&lt;/code&gt; with only the name argument and achieve similar results, however this has another issue which will require a little backstory to explain.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;After digging around in the code, I found that you can call &lt;code&gt;content_for&lt;/code&gt; in the place of &lt;code&gt;yield&lt;/code&gt; with only the name argument and achieve similar results, however this has another issue which will require a little backstory to explain.&lt;/p&gt;
 &lt;p&gt;The content for views is handled by what Rails calls a &lt;code&gt;ViewFlow&lt;/code&gt;. It exposes methods for a &lt;code&gt;content&lt;/code&gt; hash, and &lt;code&gt;yield&lt;/code&gt; and &lt;code&gt;content_for&lt;/code&gt; subsequently use those methods to access and populate the content. However when you access that content, it&amp;#8217;s not destructive; it never removes the content from that hash. This causes a problem if you&amp;#8217;re using &lt;code&gt;content_for&lt;/code&gt; in a loop, because every call you&amp;#8217;re just tacking more content onto the same hash key.&lt;/p&gt;
 &lt;p&gt;What you really need for the above scenario is a way to, when accessing the content from the &lt;code&gt;ViewFlow&lt;/code&gt;, remove it from that hash so you have a clean slate on the next iteration. This is actually trivial to accomplish because the &lt;code&gt;ViewFlow&lt;/code&gt;, and therefore it&amp;#8217;s &lt;code&gt;content&lt;/code&gt; hash, are available in the view. Just add a method like this to your &lt;code&gt;ApplicationHelper&lt;/code&gt; and use it in place of your normal named yields:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;yield_content!&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content_key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
   &lt;span class=&quot;n&quot;&gt;view_flow&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;delete&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content_key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Now when looping through your collection and rendering your partials, your content should render as expected. My next goal is to get layouts behaving with rendering partials using the &lt;code&gt;:collection&lt;/code&gt; param, though I think I may have different behavior expectations than the Rails designers do on that topic.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Now when looping through your collection and rendering your partials, your content should render as expected. My next goal is to get layouts behaving with rendering partials using the &lt;code&gt;:collection&lt;/code&gt; param, though I think I may have different behavior expectations than the Rails designers do on that topic.&lt;/p&gt;
     </content>
   </entry>
   
@@ -170,7 +178,8 @@
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Next I added a helper method to our &lt;code&gt;ResourceController&lt;/code&gt; which all of our admin controllers inherit from:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Next I added a helper method to our &lt;code&gt;ResourceController&lt;/code&gt; which all of our admin controllers inherit from:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;n&quot;&gt;helper_method&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:decorated_resource_class&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;decorated_resource_class&lt;/span&gt;
@@ -178,7 +187,8 @@
     &lt;span class=&quot;k&quot;&gt;rescue&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;InheritedResources&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Decorator&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;resource_class&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;As you&amp;#8217;ll notice, I first try to instantiate a resource_class-specific version of the decorator, because I wanted to be able to subclass and override methods as needed.  Finally I just went through all the generated resource views and replaced &lt;code&gt;resource_class&lt;/code&gt; with &lt;code&gt;decorated_resource_class&lt;/code&gt; and used the relevant methods to provide the attributes I wanted (e.g: &lt;code&gt;#form_attributes&lt;/code&gt; in &lt;code&gt;_form.html.erb&lt;/code&gt;, &lt;code&gt;#show_attributes&lt;/code&gt; in &lt;code&gt;show.html.erb&lt;/code&gt;, etc&amp;#8230;).&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;As you&amp;#8217;ll notice, I first try to instantiate a resource_class-specific version of the decorator, because I wanted to be able to subclass and override methods as needed.  Finally I just went through all the generated resource views and replaced &lt;code&gt;resource_class&lt;/code&gt; with &lt;code&gt;decorated_resource_class&lt;/code&gt; and used the relevant methods to provide the attributes I wanted (e.g: &lt;code&gt;#form_attributes&lt;/code&gt; in &lt;code&gt;_form.html.erb&lt;/code&gt;, &lt;code&gt;#show_attributes&lt;/code&gt; in &lt;code&gt;show.html.erb&lt;/code&gt;, etc&amp;#8230;).&lt;/p&gt;
 &lt;p&gt;What this means is that, at least for the basic, generic pages, I no longer have to override the provided views to get the desired output.  And if I find these sane defaults don&amp;#8217;t work, but I don&amp;#8217;t need anything really custom, I can just subclass the Decorator for the specific &lt;code&gt;resource_class&lt;/code&gt; and override the methods as needed.  An example I immediately ran into was our User pages:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;module&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;InheritedResources&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;UserDecorator&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Decorator&lt;/span&gt;
@@ -198,7 +208,8 @@
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Of course, this won&amp;#8217;t cover 100% of the cases, but I found it covers 80% &amp;#8211; 90% of the views we use in a standard admin.  The rest are so customized that over-riding the views is the only option anyway.  I considered gemifying this, or making it a pull request for Inherited Resources, but since it&amp;#8217;s built around our development environment, I think for now I&amp;#8217;ll leave it as is.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Of course, this won&amp;#8217;t cover 100% of the cases, but I found it covers 80% &amp;#8211; 90% of the views we use in a standard admin.  The rest are so customized that over-riding the views is the only option anyway.  I considered gemifying this, or making it a pull request for Inherited Resources, but since it&amp;#8217;s built around our development environment, I think for now I&amp;#8217;ll leave it as is.&lt;/p&gt;
     </content>
   </entry>
   
@@ -218,14 +229,16 @@
 &lt;span class=&quot;go&quot;&gt;  user	0m1.541s&lt;/span&gt;
 &lt;span class=&quot;go&quot;&gt;  sys	0m0.200s&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;For a moderately-sized Rails project (a client project I&amp;#8217;m currently working on):&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;For a moderately-sized Rails project (a client project I&amp;#8217;m currently working on):&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;console&quot;&gt;&lt;span class=&quot;go&quot;&gt;  $ time rake routes&lt;/span&gt;
 &lt;span class=&quot;go&quot;&gt;  ... lots of routes ...&lt;/span&gt;
 &lt;span class=&quot;go&quot;&gt;  real	0m29.664s&lt;/span&gt;
 &lt;span class=&quot;go&quot;&gt;  user	0m14.373s&lt;/span&gt;
 &lt;span class=&quot;go&quot;&gt;  sys	0m2.039s&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Nearly 30 seconds just to get a list of the available routes, completely unacceptable.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Nearly 30 seconds just to get a list of the available routes, completely unacceptable.&lt;/p&gt;
 &lt;p&gt;I set out yesterday with the idea of caching the output of this command in a temporary file, and to print out the cached version as long as the routes file hadn&amp;#8217;t been updated since the last cache time.  Unfortunately overwriting a Rake task isn&amp;#8217;t as easy as it should be, so I accomplished this goal with a simple Ruby script in the project directory:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;  &lt;span class=&quot;c1&quot;&gt;#!/usr/bin/env ruby&lt;/span&gt;
 
@@ -244,7 +257,8 @@
     &lt;span class=&quot;no&quot;&gt;File&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;temp_f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;each_line&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;l&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;l&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;While this worked, I hated that I was having to adjust to running a new command, and it meant that, if I added new routes, I was still 30 seconds away from seeing what my path helpers were.  The ideal was to have the routes cached automatically as soon as I changed my routes file.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;While this worked, I hated that I was having to adjust to running a new command, and it meant that, if I added new routes, I was still 30 seconds away from seeing what my path helpers were.  The ideal was to have the routes cached automatically as soon as I changed my routes file.&lt;/p&gt;
 &lt;p&gt;Enter &lt;a href=&quot;https://github.com/guard/guard&quot;&gt;Guard&lt;/a&gt; and &lt;a href=&quot;https://github.com/guard/guard-annotate&quot;&gt;Guard-Annotate&lt;/a&gt;.  Guard is a Ruby gem that wraps file observer functionality across all platforms, and Guard-Annotate is a module for Guard that hooks into &lt;a href=&quot;https://github.com/ctran/annotate_model&quot;&gt;Annotate&lt;/a&gt;.  Annotate allows you to add the schema of your models as comments to the bottom of the model file, as well as add the output of &lt;code&gt;rake routes&lt;/code&gt; to the bottom of your routes.rb.&lt;/p&gt;
 &lt;p&gt;With those 2 gems, I could just create a Guardfile in my project directory, and run &lt;code&gt;guard start&lt;/code&gt; alongside my Rails server and have all the annotations performed automatically for me.  This is a giant step in the right direction, but I also didn&amp;#8217;t want to have to run another daemon (as undoubtedly I&amp;#8217;d forget to run it 90% of the time).&lt;/p&gt;
 &lt;p&gt;Another issue I ran into: Guard-Annotate was simply shelling out to &lt;code&gt;bundle exec annotate&lt;/code&gt;, which in turn was shelling out to &lt;code&gt;rake routes&lt;/code&gt; for the routes portion of the annotation.  This meant that I was still 30 seconds away from savings my routes.rb and seeing the updated annotations.  Plus there was really no need to load the entire Rails stack again (via Rake) when this is all happening in the context of a running Rails app.&lt;/p&gt;
@@ -290,11 +304,13 @@
 &lt;span class=&quot;go&quot;&gt;        --pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off&lt;/span&gt;
 &lt;span class=&quot;go&quot;&gt;    -h, --help            Show this message&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;The most important options are &lt;code&gt;-j&lt;/code&gt; and &lt;code&gt;-b&lt;/code&gt;, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will &lt;code&gt;cd&lt;/code&gt; into your blog dir, &lt;code&gt;git pull&lt;/code&gt;, and then use the &lt;code&gt;jekyll&lt;/code&gt; command line to regenerate the site.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;The most important options are &lt;code&gt;-j&lt;/code&gt; and &lt;code&gt;-b&lt;/code&gt;, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will &lt;code&gt;cd&lt;/code&gt; into your blog dir, &lt;code&gt;git pull&lt;/code&gt;, and then use the &lt;code&gt;jekyll&lt;/code&gt; command line to regenerate the site.&lt;/p&gt;
 &lt;p&gt;The gem is already available via Gemcutter/Rubygems, just run:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;console&quot;&gt;&lt;span class=&quot;go&quot;&gt;  $ gem install auto-hyde&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;If you&amp;#8217;re interested, the code is also up on my &lt;a href=&quot;https://github.com/gotmayonase/auto-hyde&quot;&gt;GitHub repo&lt;/a&gt;.  I must admit that I haven&amp;#8217;t tested the email functionality yet (it uses Pony), as my &lt;span class=&quot;caps&quot;&gt;ISP&lt;/span&gt; won&amp;#8217;t allow &lt;span class=&quot;caps&quot;&gt;SMTP&lt;/span&gt; out.  So if anyone notices a bug there, or anywhere else, please let me know.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;If you&amp;#8217;re interested, the code is also up on my &lt;a href=&quot;https://github.com/gotmayonase/auto-hyde&quot;&gt;GitHub repo&lt;/a&gt;.  I must admit that I haven&amp;#8217;t tested the email functionality yet (it uses Pony), as my &lt;span class=&quot;caps&quot;&gt;ISP&lt;/span&gt; won&amp;#8217;t allow &lt;span class=&quot;caps&quot;&gt;SMTP&lt;/span&gt; out.  So if anyone notices a bug there, or anywhere else, please let me know.&lt;/p&gt;
     </content>
   </entry>
   
@@ -321,16 +337,19 @@
     &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
   &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;This isn&amp;#8217;t quite exactly what it was doing, but suffice it to say that the output I got wasn&amp;#8217;t what I expected; it instead was this:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;This isn&amp;#8217;t quite exactly what it was doing, but suffice it to say that the output I got wasn&amp;#8217;t what I expected; it instead was this:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;javascript&quot;&gt;  &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;&amp;#39;stderr: &amp;#39;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// stderr: Expected output from my command&lt;/span&gt;
   
   &lt;span class=&quot;c1&quot;&gt;// Logging the data in the view directly without string concat gave this:&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;console&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;log&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// { 0: 23, 1: 82:, 3: 15, ... 60: 10, length: 61 }&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Needless to say, I was quite confused, until I logged the output on the server side and saw this:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Needless to say, I was quite confused, until I logged the output on the server side and saw this:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;console&quot;&gt;&lt;span class=&quot;go&quot;&gt;  &amp;lt;Buffer 0a 1b 5b 31 6d 70 72 6f 6a 65 63 74 5f 74 65 73 74 1b 5b 32 32 6d 0a&amp;gt;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;A short google trip later and I found &lt;a href=&quot;http://nodejs.org/api.html#buffers-2&quot;&gt;this&lt;/a&gt; in the node.js docs so I updated my code to call &lt;code&gt;data.toString('ascii')&lt;/code&gt; and was rewarded with the output I expected.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;A short google trip later and I found &lt;a href=&quot;http://nodejs.org/api.html#buffers-2&quot;&gt;this&lt;/a&gt; in the node.js docs so I updated my code to call &lt;code&gt;data.toString('ascii')&lt;/code&gt; and was rewarded with the output I expected.&lt;/p&gt;
 &lt;h4&gt;Socket.IO&lt;/h4&gt;
 &lt;p&gt;The next time-consuming bug came when trying to stream the output from the process to the view.  The build worker that handles running the process passes the output back to the controller, which then broadcasts it via the socket to the clients.  My initial code looked something along these lines:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;javascript&quot;&gt;  &lt;span class=&quot;nx&quot;&gt;socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;broadcast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
@@ -338,10 +357,12 @@
     &lt;span class=&quot;s1&quot;&gt;&amp;#39;stderr&amp;#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stderr&lt;/span&gt;
   &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;However, I was unable to call &lt;code&gt;stdout&lt;/code&gt; or &lt;code&gt;stderr&lt;/code&gt; off the object passed in the broadcast, and when I logged to the browser console I found this odd output:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;However, I was unable to call &lt;code&gt;stdout&lt;/code&gt; or &lt;code&gt;stderr&lt;/code&gt; off the object passed in the broadcast, and when I logged to the browser console I found this odd output:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;console&quot;&gt;&lt;span class=&quot;go&quot;&gt;  ~j~{&amp;#39;stdout&amp;#39;:&amp;#39;This would be stdout output.&amp;#39;,&amp;#39;stderr&amp;#39;:null}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;At first glance I was confused, it looked like a &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; object or an object literal, but I had no access to any of the keys inside.  I thought to myself &amp;#8220;The secret must lie in the &amp;#8216;~j~&amp;#8217; at the beginning,&amp;#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;At first glance I was confused, it looked like a &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; object or an object literal, but I had no access to any of the keys inside.  I thought to myself &amp;#8220;The secret must lie in the &amp;#8216;~j~&amp;#8217; at the beginning,&amp;#8221; but Google returned no relevant results regarding that.  Eventually, after reading several other examples, I found a simple solution:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;javascript&quot;&gt;  &lt;span class=&quot;c1&quot;&gt;// Server-side&lt;/span&gt;
   &lt;span class=&quot;nx&quot;&gt;socket&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;broadcast&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stringify&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;
     &lt;span class=&quot;s1&quot;&gt;&amp;#39;stdout&amp;#39;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;message&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;stdout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
@@ -353,7 +374,8 @@
     &lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;JSON&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;msg&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
   &lt;span class=&quot;p&quot;&gt;});&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;By doing this, I was able to access &lt;code&gt;stdout&lt;/code&gt; and &lt;code&gt;stderr&lt;/code&gt; off the &lt;code&gt;data&lt;/code&gt; variable.  I&amp;#8217;m still uncertain what the object originally being passed to the view was, as it was neither &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; nor an object literal, but the solution got me where I needed to be.  If anyone can explain it further, please do so; I&amp;#8217;d love to know what&amp;#8217;s going on behind the scenes here.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;By doing this, I was able to access &lt;code&gt;stdout&lt;/code&gt; and &lt;code&gt;stderr&lt;/code&gt; off the &lt;code&gt;data&lt;/code&gt; variable.  I&amp;#8217;m still uncertain what the object originally being passed to the view was, as it was neither &lt;span class=&quot;caps&quot;&gt;JSON&lt;/span&gt; nor an object literal, but the solution got me where I needed to be.  If anyone can explain it further, please do so; I&amp;#8217;d love to know what&amp;#8217;s going on behind the scenes here.&lt;/p&gt;
 &lt;p&gt;I think it highly likely that I&amp;#8217;ve made some rookie mistakes here, but, as I stated before, I&amp;#8217;m very new to Javascript so much of this is foreign to me.  I&amp;#8217;m still trying to get past the Ruby/OO mindset and to wrap my brain around the JS way of doing things, but I&amp;#8217;m getting there.  I&amp;#8217;ll soon be reading &lt;cite&gt;&lt;a href=&quot;http://www.amazon.com/JavaScript-Good-Parts-Douglas-Crockford/dp/0596517742/ref=sr_1_1?ie=UTF8&amp;amp;qid=1291968451&amp;amp;sr=8-1&quot;&gt;Javascript: The Good Parts&lt;/a&gt;&lt;/cite&gt;, which I hope will get me over some of these newbie difficulties I&amp;#8217;m running into.  If you have any tips or suggestions, or if you can point me towards any good guides on the subject, I&amp;#8217;d love to hear from you.&lt;/p&gt;
     </content>
   </entry>
@@ -371,7 +393,8 @@
   
   &lt;span class=&quot;n&quot;&gt;raise_event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:run_anything_start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;As you can see it&amp;#8217;s using a special RunAnythingEvent context object, whose definition looks like so:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;As you can see it&amp;#8217;s using a special RunAnythingEvent context object, whose definition looks like so:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RunAnythingEvent&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;BaseEvent&lt;/span&gt;
     
     &lt;span class=&quot;kp&quot;&gt;attr_reader&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:runner&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:suites&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:options&lt;/span&gt;
@@ -388,7 +411,8 @@
     
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;And here is an example of an event handler for this event:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;And here is an example of an event handler for this event:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;  &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;RunAnythingStartHandler&lt;/span&gt;
   
     &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;event&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -405,10 +429,12 @@
   
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;Which is registered by calling the following method off the class where the event was raised:&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Which is registered by calling the following method off the class where the event was raised:&lt;/p&gt;
 &lt;div class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;ruby&quot;&gt;  &lt;span class=&quot;n&quot;&gt;register_event_handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;ss&quot;&gt;:run_anything_start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;RunAnythingStartHandler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;&lt;p&gt;This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (&lt;code&gt;MiniTest::Reporting&lt;/code&gt;) which is enabled by default.&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;This particular example illustrates an important part of my goal.  I wanted to decouple the reporting of the tests from the actual tests themselves.  In order to further this I have created plugins that enable and disable the required event handlers which deal with outputting results in specific ways.  I have also moved all the base reporting into a plugin (&lt;code&gt;MiniTest::Reporting&lt;/code&gt;) which is enabled by default.&lt;/p&gt;
 &lt;p&gt;The next step, which I&amp;#8217;ve already partially completed, is to create plugins that handle alternative output options like the progress bar and instafailing.  If you&amp;#8217;re interested, the work is being done in the &lt;a href=&quot;https://github.com/gotmayonase/minitest/tree/events&quot;&gt;events branch&lt;/a&gt; on my Github account.  Assuming Node.js doesn&amp;#8217;t monopolize all my time, I hope to have it completed in the near future.  If you have any ideas, feel free to let me know.&lt;/p&gt;
     </content>
   </entry>
@@ -539,6 +565,7 @@
       
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
+
     &lt;/p&gt; 
     &lt;p&gt;Like I said, it&amp;#8217;s dirty, but it works.  What I&amp;#8217;m left with now is an output from running my tests that looks like this:&lt;/p&gt; 
     &lt;p&gt;&lt;img src=&quot;http://grab.by/grabs/82b1d2b18ca1d648c3481f4efbf69954.png&quot; width=&quot;488&quot; height=&quot;340&quot;/&gt;&lt;/p&gt; 

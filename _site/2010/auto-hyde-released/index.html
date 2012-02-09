@@ -86,11 +86,13 @@
 <span class="go">        --pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off</span>
 <span class="go">    -h, --help            Show this message</span>
 </code></pre>
-</div><p>The most important options are <code>-j</code> and <code>-b</code>, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will <code>cd</code> into your blog dir, <code>git pull</code>, and then use the <code>jekyll</code> command line to regenerate the site.</p>
+</div>
+<p>The most important options are <code>-j</code> and <code>-b</code>, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will <code>cd</code> into your blog dir, <code>git pull</code>, and then use the <code>jekyll</code> command line to regenerate the site.</p>
 <p>The gem is already available via Gemcutter/Rubygems, just run:</p>
 <div class="highlight"><pre><code class="console"><span class="go">  $ gem install auto-hyde</span>
 </code></pre>
-</div><p>If you&#8217;re interested, the code is also up on my <a href="https://github.com/gotmayonase/auto-hyde">GitHub repo</a>.  I must admit that I haven&#8217;t tested the email functionality yet (it uses Pony), as my <span class="caps">ISP</span> won&#8217;t allow <span class="caps">SMTP</span> out.  So if anyone notices a bug there, or anywhere else, please let me know.</p>
+</div>
+<p>If you&#8217;re interested, the code is also up on my <a href="https://github.com/gotmayonase/auto-hyde">GitHub repo</a>.  I must admit that I haven&#8217;t tested the email functionality yet (it uses Pony), as my <span class="caps">ISP</span> won&#8217;t allow <span class="caps">SMTP</span> out.  So if anyone notices a bug there, or anywhere else, please let me know.</p>
 </div>
 
 <span class="article_buttons">
@@ -143,5 +145,12 @@
 
   <script src="/js/jquery.js" type="text/javascript"></script>
   <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
 </body>
 </html>

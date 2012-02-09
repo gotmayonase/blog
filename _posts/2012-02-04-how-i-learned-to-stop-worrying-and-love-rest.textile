@@ -16,6 +16,8 @@ Buzzwords can be a funny thing. I've been writing (what I thought were) 'RESTful
 _TL;DR: A RESTful API should provide hypertext links to drive traversal through itself, instead of forcing the client to craft their own URIs._
 </div>
 
+Many have complained about the font on my site, but I personally like it. If you're having trouble with it though, just click <a href="javascript:void(0)" id="font-changer">here</a>.
+
 h3. A little backstory
 
 At "Twin Engine Labs":http://www.twinenginelabs.com, we develop iOS apps that are generally backed by Rails REST APIs. We've been doing this for a little over a year now, and are constantly refining our process. A few weeks ago I built my first iOS app (which got approved this week) as well as the JSON API backend for it. I take a lot of pride in my code, and I have to say I was quite pleased with how everything turned out. The project felt clean, things were refactored as I felt they needed to be, and nothing was overly complex or ugly.  However, at the end of the project lifecycle, I started looking to increase performance by adding basic Rails caching where it was appropriate, and things took an unhappy turn.

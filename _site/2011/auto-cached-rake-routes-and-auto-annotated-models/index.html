@@ -83,14 +83,16 @@
 <span class="go">  user	0m1.541s</span>
 <span class="go">  sys	0m0.200s</span>
 </code></pre>
-</div><p>For a moderately-sized Rails project (a client project I&#8217;m currently working on):</p>
+</div>
+<p>For a moderately-sized Rails project (a client project I&#8217;m currently working on):</p>
 <div class="highlight"><pre><code class="console"><span class="go">  $ time rake routes</span>
 <span class="go">  ... lots of routes ...</span>
 <span class="go">  real	0m29.664s</span>
 <span class="go">  user	0m14.373s</span>
 <span class="go">  sys	0m2.039s</span>
 </code></pre>
-</div><p>Nearly 30 seconds just to get a list of the available routes, completely unacceptable.</p>
+</div>
+<p>Nearly 30 seconds just to get a list of the available routes, completely unacceptable.</p>
 <p>I set out yesterday with the idea of caching the output of this command in a temporary file, and to print out the cached version as long as the routes file hadn&#8217;t been updated since the last cache time.  Unfortunately overwriting a Rake task isn&#8217;t as easy as it should be, so I accomplished this goal with a simple Ruby script in the project directory:</p>
 <div class="highlight"><pre><code class="ruby">  <span class="c1">#!/usr/bin/env ruby</span>
 
@@ -109,7 +111,8 @@
     <span class="no">File</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">temp_f</span><span class="p">)</span><span class="o">.</span><span class="n">each_line</span> <span class="p">{</span> <span class="o">|</span><span class="n">l</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">l</span> <span class="p">}</span>
   <span class="k">end</span>
 </code></pre>
-</div><p>While this worked, I hated that I was having to adjust to running a new command, and it meant that, if I added new routes, I was still 30 seconds away from seeing what my path helpers were.  The ideal was to have the routes cached automatically as soon as I changed my routes file.</p>
+</div>
+<p>While this worked, I hated that I was having to adjust to running a new command, and it meant that, if I added new routes, I was still 30 seconds away from seeing what my path helpers were.  The ideal was to have the routes cached automatically as soon as I changed my routes file.</p>
 <p>Enter <a href="https://github.com/guard/guard">Guard</a> and <a href="https://github.com/guard/guard-annotate">Guard-Annotate</a>.  Guard is a Ruby gem that wraps file observer functionality across all platforms, and Guard-Annotate is a module for Guard that hooks into <a href="https://github.com/ctran/annotate_model">Annotate</a>.  Annotate allows you to add the schema of your models as comments to the bottom of the model file, as well as add the output of <code>rake routes</code> to the bottom of your routes.rb.</p>
 <p>With those 2 gems, I could just create a Guardfile in my project directory, and run <code>guard start</code> alongside my Rails server and have all the annotations performed automatically for me.  This is a giant step in the right direction, but I also didn&#8217;t want to have to run another daemon (as undoubtedly I&#8217;d forget to run it 90% of the time).</p>
 <p>Another issue I ran into: Guard-Annotate was simply shelling out to <code>bundle exec annotate</code>, which in turn was shelling out to <code>rake routes</code> for the routes portion of the annotation.  This meant that I was still 30 seconds away from savings my routes.rb and seeing the updated annotations.  Plus there was really no need to load the entire Rails stack again (via Rake) when this is all happening in the context of a running Rails app.</p>
@@ -185,5 +188,12 @@
 
   <script src="/js/jquery.js" type="text/javascript"></script>
   <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
 </body>
 </html>

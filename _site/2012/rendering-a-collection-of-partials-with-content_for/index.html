@@ -80,13 +80,16 @@
 <p>Partials can be <a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials">rendered with a layout</a>? I know, my mind was blown too! The only caveat I&#8217;ve found is that the layout file needs to be in the same directory as the partial, as opposed to the layouts directory, though I&#8217;m not sure if this is a hard rule or just the default behavior.</p>
 <div class="highlight"><pre><code class="ruby"><span class="o">&lt;</span><span class="sx">%= render :partial =</span><span class="o">&gt;</span> <span class="s1">&#39;my_partial_file&#39;</span><span class="p">,</span> <span class="ss">:layout</span> <span class="o">=&gt;</span> <span class="s1">&#39;my_layout_file&#39;</span> <span class="o">%&gt;</span>
 </code></pre>
-</div><p>Another fun fact, you can call:</p>
+</div>
+<p>Another fun fact, you can call:</p>
 <div class="highlight"><pre><code class="ruby"><span class="o">&lt;</span><span class="sx">%= render :partial =</span><span class="o">&gt;</span> <span class="s1">&#39;my_partial_file&#39;</span><span class="p">,</span> <span class="ss">:collection</span> <span class="o">=&gt;</span> <span class="vi">@my_collection_of_objects</span> <span class="o">%&gt;</span>
 </code></pre>
-</div><p>or if the objects in your collection have a class name that matches your partial name:</p>
+</div>
+<p>or if the objects in your collection have a class name that matches your partial name:</p>
 <div class="highlight"><pre><code class="ruby"><span class="o">&lt;%=</span> <span class="n">render</span> <span class="vi">@my_collection_of_objects</span> <span class="o">%&gt;</span>
 </code></pre>
-</div><p>and Rails will render each of those objects into the partial.  Supposedly this is faster than looping over the objects and rendering manually, since Rails only has to lookup the partial once. One downside is that you can&#8217;t (as far as I can tell) also pass a layout to this method call.</p>
+</div>
+<p>and Rails will render each of those objects into the partial.  Supposedly this is faster than looping over the objects and rendering manually, since Rails only has to lookup the partial once. One downside is that you can&#8217;t (as far as I can tell) also pass a layout to this method call.</p>
 <p>Anyways on to solving the problem at hand&#8230;</p>
 <h3>The Solution:</h3>
 <p>The most obvious solution to <span class="caps">DRY</span> up similar partials is to use the layout parameter and move all your repetitive markup to a layout view. Sometimes things don&#8217;t get to be that simple, though. If, for instance, you want to have a named yield inside your partial layout, you&#8217;ll quickly find yourself frustrated. Here&#8217;s an example:</p>
@@ -102,7 +105,8 @@
 <span class="o">&lt;</span><span class="sx">% content_for </span><span class="ss">:special_content</span><span class="p">,</span> <span class="s1">&#39;This is very special&#39;</span> <span class="sx">%&gt;</span>
 <span class="sx">&lt;p&gt;</span><span class="no">This</span> <span class="n">is</span> <span class="ow">not</span> <span class="n">so</span> <span class="n">special</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
 </code></pre>
-</div><p>For some reason, named yields inside partial layouts don&#8217;t behave correctly. Instead of your expected output, you&#8217;ll end up with:</p>
+</div>
+<p>For some reason, named yields inside partial layouts don&#8217;t behave correctly. Instead of your expected output, you&#8217;ll end up with:</p>
 <div class="highlight"><pre><code class="html"><span class="nt">&lt;p</span> <span class="na">id=</span><span class="s">&quot;special_content&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;p&gt;</span>This is not so special<span class="nt">&lt;/p&gt;</span>
 <span class="nt">&lt;/p&gt;</span>
@@ -110,14 +114,16 @@
   <span class="nt">&lt;p&gt;</span>This is not so special<span class="nt">&lt;/p&gt;</span>
 <span class="nt">&lt;/div&gt;</span>
 </code></pre>
-</div><p>After digging around in the code, I found that you can call <code>content_for</code> in the place of <code>yield</code> with only the name argument and achieve similar results, however this has another issue which will require a little backstory to explain.</p>
+</div>
+<p>After digging around in the code, I found that you can call <code>content_for</code> in the place of <code>yield</code> with only the name argument and achieve similar results, however this has another issue which will require a little backstory to explain.</p>
 <p>The content for views is handled by what Rails calls a <code>ViewFlow</code>. It exposes methods for a <code>content</code> hash, and <code>yield</code> and <code>content_for</code> subsequently use those methods to access and populate the content. However when you access that content, it&#8217;s not destructive; it never removes the content from that hash. This causes a problem if you&#8217;re using <code>content_for</code> in a loop, because every call you&#8217;re just tacking more content onto the same hash key.</p>
 <p>What you really need for the above scenario is a way to, when accessing the content from the <code>ViewFlow</code>, remove it from that hash so you have a clean slate on the next iteration. This is actually trivial to accomplish because the <code>ViewFlow</code>, and therefore it&#8217;s <code>content</code> hash, are available in the view. Just add a method like this to your <code>ApplicationHelper</code> and use it in place of your normal named yields:</p>
 <div class="highlight"><pre><code class="ruby"><span class="k">def</span> <span class="nf">yield_content!</span><span class="p">(</span><span class="n">content_key</span><span class="p">)</span>
   <span class="n">view_flow</span><span class="o">.</span><span class="n">content</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">content_key</span><span class="p">)</span>
 <span class="k">end</span>
 </code></pre>
-</div><p>Now when looping through your collection and rendering your partials, your content should render as expected. My next goal is to get layouts behaving with rendering partials using the <code>:collection</code> param, though I think I may have different behavior expectations than the Rails designers do on that topic.</p>
+</div>
+<p>Now when looping through your collection and rendering your partials, your content should render as expected. My next goal is to get layouts behaving with rendering partials using the <code>:collection</code> param, though I think I may have different behavior expectations than the Rails designers do on that topic.</p>
 </div>
 
 <span class="article_buttons">
@@ -170,5 +176,12 @@
 
   <script src="/js/jquery.js" type="text/javascript"></script>
   <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
 </body>
 </html>
