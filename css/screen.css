@@ -473,3 +473,25 @@ p.note {
   font-size: 12px;
   font-style: italic;
 }
+
+div.post div.subtitle {
+  margin-top: 5px;
+  clear: both;
+  font-size: 14px;
+  line-height: 14px;
+  padding: 0;
+}
+
+a.comments {
+  font-size: 14px;
+  line-height: 14px;
+  float: right;
+  font-weight: 500;
+}
+
+div.post p.date {
+  margin: 0;
+  line-height: 14px;
+  float: left;
+  font-size: 14px;
+}
