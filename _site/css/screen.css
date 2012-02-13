@@ -495,3 +495,7 @@ div.post p.date {
   float: left;
   font-size: 14px;
 }
+
+div.twitter-button {
+  float: right;
+}
