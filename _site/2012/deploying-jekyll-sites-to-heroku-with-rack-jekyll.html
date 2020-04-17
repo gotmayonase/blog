@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, heroku, rack, jekyll, rack-jekyll, deploy, bug, content length, header" />
+  <meta name="description" content="Heroku is a phenomenal service for deploying small apps since they have a great free plan.  Rack-Jekyll is a gem that makes deploying a Jekyll site to Heroku easy, but there are a couple gotchas with making the current version work." />
+  
+  <title>
+    Deploying Jekyll sites to Heroku with Rack-Jekyll -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" title="RSS Feed for mikemayo.org"/>
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+          <div class="twitter-button">
+            <a href="https://twitter.com/mike_mayo" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-width="100px" data-align="right">Follow @mike_mayo</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+          </div>
+        </div> <!-- end #header -->
+        <h2>Deploying Jekyll sites to Heroku with Rack-Jekyll</h2>
+        
+
+<p class="article_date date">
+  08 Feb 2012
+</p>
+
+<hr/>
+
+<div id="content">
+	<p class="note">Note: Check out my <a href="http://dev.twinenginelabs.com/2012/How-to-make-a-blog-post-with-Jekyll/">article on the Twin Engine Labs engineering blog</a> for some Jekyll highlights and a mini-guide on creating your first blog post.</p>
+<p>This will just a quick guide to show how to get your Jekyll site going on <a href="http://heroku.com">Heroku</a>.  I&#8217;m going to be working off the assumption that you&#8217;ve already got a Heroku account setup, so I won&#8217;t be going through any of that here.</p>
+<p>First you need to install <a href="http://gembundler.com">Bundler</a> and add a Gemfile to your project if you don&#8217;t already have one. The gem we need is called <a href="https://github.com/adaoraul/rack-jekyll">Rack-Jekyll</a>.  It basically just provides a little Rack middleware to serve your statically-generated site to Heroku&#8217;s thins.  Unfortunately the latest version in Rubygems depends on some very old versions of gems so you&#8217;ll need to install from git.</p>
+<p>Add the following line to your Gemfile:</p>
+<div class="longer">
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">gem</span> <span class="s1">'rack-jekyll'</span><span class="p">,</span> <span class="ss">:git</span> <span class="o">=&gt;</span> <span class="s1">'https://github.com/adaoraul/rack-jekyll.git'</span><span class="p">,</span> <span class="ss">:require</span> <span class="o">=&gt;</span> <span class="s1">'rack/jekyll'</span></code></pre></figure></div>
+<p>Next create a file named <code>config.ru</code> in your project, if it doesn&#8217;t already exist, add the following to it:</p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'bundler'</span>
+<span class="no">Bundler</span><span class="p">.</span><span class="nf">require</span><span class="p">(</span><span class="ss">:default</span><span class="p">,</span> <span class="ss">:production</span><span class="p">)</span>
+
+<span class="n">run</span> <span class="no">Rack</span><span class="o">::</span><span class="no">Jekyll</span><span class="p">.</span><span class="nf">new</span></code></pre></figure><p>The guide on GitHub is different than the above advice, but I kept getting errors when it tried to require &#8216;rack/jekyll&#8217; until I modified my <code>config.ru</code> to look like this.</p>
+<p>Now you should be clear to deploy to Heroku as usual (<code>git push heroku master</code>).</p>
+<h4>An interesting sidenote</h4>
+<p>Up until recently I was deploying my site with rack-jekyll version 0.3.5 (current version in RubyGems is 0.3.7). For a long time I was experiencing an issue where any images I uploaded (after switching to this deploy method) had the bottom 10% or so cut off when served from Heroku. At first it was just a single image and I thought it just a fluke (and I hadn&#8217;t written a new blog post in a long time), so I didn&#8217;t mess with it. But then with my latest blog post I ran into the same issue again.</p>
+<p>I finally contacted Heroku support, and after a bit of back-and-forth they determined that Rack-Jekyll was responding with an incorrect <code>Content-Length</code> header. I tried upgrading to 0.3.7 immediately, but the RubyGems version called a whole new slew of headaches, so I gave up and dug into the code. Turned out that the old version was reading in the file, turning the body into a string, calling <code>.length</code> off that string, and passing that as the content length. This is the incorrect way to handle this, and there are a couple of better ways to do it.  Since we&#8217;re reading the file in anyways, an easy way is just to use <code>file.size</code>.  Another option, if you&#8217;re using a string, is to call <code>"string".bytesize</code>.</p>
+<p>Anyways, I eventually discovered that the version of Rack-Jekyll on GitHub had been updated to current versions of the important gems, and already had the fix in place, so I just switched over to using that instead.</p>
+<p>Cool story bro.</p>
+</div>
+
+<span class="article_buttons">
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+  <a class="hackernews" href="javascript:window.location=%22http://news.ycombinator.com/submitlink?u=%22+encodeURIComponent(document.location)+%22&t=%22+encodeURIComponent(document.title)">
+    <span class="balloon">hacker news!</span> <img src="/images/hn.png"/>
+  </a>
+  <br />
+  <div style="margin-top: 3px">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-via="mike_mayo" data-related="mike_mayo" data-align="right">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  var disqus_shortname = 'mikemayoblog';
+  var disqus_identifier = '/2012/deploying-jekyll-sites-to-heroku-with-rack-jekyll';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <!-- <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div> -->
+        <!-- You also need to place a container where you'd like the Coderwall badges to render. -->
+        <section class="coderwall" data-coderwall-username="gotmayonase" data-coderwall-orientation="vertical"></section>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+  <a href="http://github.com/gotmayonase"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
+</body>
+</html>

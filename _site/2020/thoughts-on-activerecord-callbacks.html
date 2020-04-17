@@ -1,0 +1,267 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, ruby,rails,activerecord,active,record" />
+  <meta name="description" content="Guidelines I use for determining if and how I want to use everyone's favorite before/after hooks in Rails" />
+  
+  <title>
+    Thoughts on ActiveRecord Callbacks -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" title="RSS Feed for mikemayo.org"/>
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+          <div class="twitter-button">
+            <a href="https://twitter.com/mike_mayo" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-width="100px" data-align="right">Follow @mike_mayo</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+          </div>
+        </div> <!-- end #header -->
+        <h2>Thoughts on ActiveRecord Callbacks</h2>
+        
+
+<p class="article_date date">
+  15 Apr 2020
+</p>
+
+<hr/>
+
+<div id="content">
+	<p>At the office recently we had a discussion about if/when to use ActiveRecord callbacks and I ended up condensing the below into a blog post from my own opinions.</p>
+
+<p>Let me be clear that I absolutely love using AR callbacks, but I’ve definitely been burned in the past by over/inappropriate use so I’m much more cautious about them nowadays.</p>
+
+<p>I don’t have any hard and fast rules about using callbacks, other than “Don’t send emails” and that’s because I’ve been burned by it more than once and it’s just not worth it.</p>
+
+<p>What I do have is a <del>very particular set of skills. Skills I have acquired over a very long career.</del> few guidelines I try to go by relating to them.</p>
+
+<ol>
+  <li><strong>Intention</strong>: Is the thing I’m trying to accomplish something that someone very specifically intends to happen, or is it reasonable to be expected as a side effect of a very generic action:
+    <ul>
+      <li>ie: I think it’s reasonable for an address to be geocoded to lat/long on save, but find it less reasonable for student’s expiration date to be extended if they change their hair color.</li>
+    </ul>
+  </li>
+  <li><strong>Context</strong>: When do I <em>actually</em> want this behavior to trigger? It’s easy to think of things from a database/ActiveRecord perspective and say “On save of course!”, but I find the more often I stop and think about it, the less that tends to be the case.  There’s usually some caveat like “On save…after I register”, and often it’s even more specific than that: “On save…after I register…from the storefront”.  If I find myself tacking extra context on to the save, maybe the callback isn’t as good of a fit as it seemed at first.</li>
+  <li><strong>Consequence</strong>: What are the immediate, and potential downstream, effects we might see from this behavior?  Some questions I might ask myself:
+    <ul>
+      <li>Is it limited to just the object I’m saving or does it affect associated (or even unassociated) objects?</li>
+      <li>Does it make external api calls or trigger some other behavior elsewhere in the stack (potentially even in a whole other app)?</li>
+      <li>Is the change a minor one (transforming some fields on the object), or something (much) bigger?</li>
+      <li>If this behavior fails, should it interrupt the <code class="highlighter-rouge">save</code> of the object in question, or should it be asynchronous?</li>
+    </ul>
+  </li>
+  <li><strong>Performance</strong>: This is more of a subset of the above, but I think it’s worth its own consideration.
+    <ul>
+      <li>What is the potential impact this might have on any given request?</li>
+      <li>Does it fire off additional SQL queries? How fast/slow are those?</li>
+      <li>Does it make an external API request? That’s almost definitely going to be slower than we want to tag on to our current request.  How do we handle failure states for that request?</li>
+      <li>Does it generate an email/sms/fax/smoke signal/push notification? (IT BETTER NOT, see my first sentence)</li>
+      <li>Is it just a really slow and complex calculation that’s gonna take a bit to complete?</li>
+    </ul>
+  </li>
+</ol>
+
+<p>None of the above points by themselves immediately disqualifies using a callback, in my book, but the more of them I find myself answering in a negative fashion, the less likely I’ll be to reach for them.</p>
+
+<p>Now all of that is great, but what do we do if we determine callbacks aren’t the best option?  Glad you asked, here’s the different tactics I’ve used or seen used:</p>
+
+<ol>
+  <li><strong>Just use a callback!</strong>
+    <ul>
+      <li>“But…you just said…” Yeah yeah I know. Sometimes we make inefficient/bad choices under time crunches and we’ll have to pay for it later. As long as you’re not sending an email with it, we’ll figure it out I’m sure.  Please try to add some specs around it though.  However, if you’re gonna go this route lemme introduce you to another option:</li>
+    </ul>
+  </li>
+  <li><strong>Use what I call an Imperative Callback.</strong> It’s a callback that will only fire when you, from some external source, explicitly tell it to fire.  The format you see this in goes like this:
+    <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">class</span> <span class="nc">Plan</span> <span class="o">&lt;</span> <span class="no">ApplicationRecord</span>
+   <span class="nb">attr_accessor</span> <span class="ss">:is_coming_together</span>
+
+   <span class="n">after_save</span> <span class="ss">:say_catchphrase</span>
+
+   <span class="k">def</span> <span class="nf">say_catchphrase</span>
+     <span class="k">if</span> <span class="n">is_coming_together</span>
+       <span class="nb">puts</span> <span class="s2">"I love it when a plan comes together"</span>
+     <span class="k">end</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+
+ <span class="k">class</span> <span class="nc">PlansController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+   <span class="k">def</span> <span class="nf">update</span>
+     <span class="vi">@plan</span> <span class="o">=</span> <span class="no">Plan</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="ss">:id</span><span class="p">])</span>
+     <span class="k">if</span> <span class="vi">@plan</span><span class="p">.</span><span class="nf">update</span><span class="p">(</span><span class="n">plan_params</span><span class="p">)</span>
+       <span class="c1"># do the success thing</span>
+     <span class="k">else</span>
+       <span class="c1"># do the error thing</span>
+     <span class="k">end</span>
+   <span class="k">end</span>
+
+   <span class="k">def</span> <span class="nf">plan_params</span>
+     <span class="n">params</span><span class="p">.</span><span class="nf">require</span><span class="p">(</span><span class="ss">:plan</span><span class="p">).</span><span class="nf">permit</span><span class="p">(</span><span class="ss">:checklist</span><span class="p">,</span> <span class="ss">:success</span><span class="p">,</span> <span class="ss">:is_coming_together</span><span class="p">)</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+</code></pre></div>    </div>
+    <p>Now when we save our Plan object (from an API call or a form), we can pass <code class="highlighter-rouge">is_coming_together: 1/true/something_truthy</code> along with our other params and our catchphrase will fire off.  All other saves however will not trigger this behavior since <code class="highlighter-rouge">is_coming_together</code> will be <code class="highlighter-rouge">nil</code> by default.  This approach doesn’t make me feel very warm and fuzzy inside, but at least feels like a lesser evil.</p>
+  </li>
+  <li><strong>Just make it a new method and call that method where you need to.</strong>  Ex: You might add a <code class="highlighter-rouge">complete</code> method to your <code class="highlighter-rouge">Sale</code> class that sends the receipt email, updates the customer’s last transaction date, and a few other items.  This new <code class="highlighter-rouge">complete</code> method could be called in your controllers after saving, leaving your <code class="highlighter-rouge">save</code> behavior safe to run in a rails console if needed.</li>
+  <li><strong>Just dump the logic in the controller.</strong>  I’m generally not a fan of this, as I more prefer “Fat Models, Skinny Controllers” and it’s easy for this kind of stuff to inverse the relationship.  But if this is the first iteration of a feature, and it’s a small amount of code, sometimes it’s not the worst idea.</li>
+  <li><strong>Service Objects:</strong> Aww yeah, now we’re getting to the moist center of this debate. If you’ve got some complex behavior that you want to fire in several spots related to a given model, why not wrap that all up in its own object.  It’s basically the Stefan Urquelle to option number 3’s Steve Urkel.  Peep this:
+    <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">class</span> <span class="nc">ExecutePlan</span>
+   <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">plan</span><span class="p">)</span>
+     <span class="vi">@plan</span> <span class="o">=</span> <span class="n">plan</span>
+   <span class="k">end</span>
+
+   <span class="k">def</span> <span class="nf">execute</span>
+     <span class="k">return</span> <span class="kp">nil</span> <span class="k">unless</span> <span class="vi">@plan</span><span class="p">.</span><span class="nf">save</span>
+     <span class="k">if</span> <span class="n">is_coming_together?</span>
+       <span class="no">ATeamSMS</span><span class="p">.</span><span class="nf">send_message</span><span class="p">(</span><span class="s2">"I love it when a plan comes together"</span><span class="p">)</span>
+     <span class="k">end</span>
+   <span class="k">end</span>
+
+   <span class="k">def</span> <span class="nf">is_coming_together?</span>
+     <span class="n">mr_t_pitied_the_fool?</span> <span class="o">&amp;&amp;</span>
+       <span class="n">cigar_was_smoked?</span> <span class="o">&amp;&amp;</span>
+       <span class="n">splosions?</span> <span class="o">&amp;&amp;</span>
+       <span class="n">saved_the_day?</span>
+   <span class="k">end</span>
+
+   <span class="kp">private</span>
+
+   <span class="k">def</span> <span class="nf">mr_t_pitied_the_fool?</span><span class="p">;</span> <span class="k">end</span>
+   <span class="k">def</span> <span class="nf">cigar_was_smoked?</span><span class="p">;</span> <span class="k">end</span>
+   <span class="k">def</span> <span class="nf">splosions</span><span class="p">;</span> <span class="k">end</span>
+   <span class="k">def</span> <span class="nf">saved_the_day?</span><span class="p">;</span> <span class="k">end</span>
+ <span class="k">end</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Start your own callbacks, with before before hooks and after before hooks!!</strong> Did you know you can add your own callbacks pretty easily to any <code class="highlighter-rouge">ActiveSupport</code> object? I’ve never actually done this before, but it’s a neat idea that might be worth a shot in the right situation (also no idea if this code would actually work or not)
+    <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">class</span> <span class="nc">Plan</span> <span class="o">&lt;</span> <span class="no">ApplicationRecord</span>
+   <span class="n">define_model_callbacks</span> <span class="ss">:execute</span><span class="p">,</span> <span class="ss">:only</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="ss">:before</span><span class="p">,</span> <span class="ss">:after</span><span class="p">]</span>
+   <span class="n">after_execute</span> <span class="ss">:say_catchphrase</span>
+
+   <span class="k">def</span> <span class="nf">execute</span>
+     <span class="n">run_callbacks</span> <span class="ss">:execute</span> <span class="k">do</span>
+       <span class="n">save!</span>
+     <span class="k">end</span>
+   <span class="k">end</span>
+
+   <span class="k">def</span> <span class="nf">say_catchphrase</span>
+     <span class="nb">puts</span> <span class="s2">"Hasta la vista"</span>
+     <span class="nb">sleep</span> <span class="mi">60000</span>
+     <span class="nb">puts</span> <span class="s2">"...baby"</span>
+   <span class="k">end</span>
+ <span class="k">end</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+
+</div>
+
+<span class="article_buttons">
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+  <a class="hackernews" href="javascript:window.location=%22http://news.ycombinator.com/submitlink?u=%22+encodeURIComponent(document.location)+%22&t=%22+encodeURIComponent(document.title)">
+    <span class="balloon">hacker news!</span> <img src="/images/hn.png"/>
+  </a>
+  <br />
+  <div style="margin-top: 3px">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-via="mike_mayo" data-related="mike_mayo" data-align="right">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  var disqus_shortname = 'mikemayoblog';
+  var disqus_identifier = '/2020/thoughts-on-activerecord-callbacks';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <!-- <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div> -->
+        <!-- You also need to place a container where you'd like the Coderwall badges to render. -->
+        <section class="coderwall" data-coderwall-username="gotmayonase" data-coderwall-orientation="vertical"></section>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+  <a href="http://github.com/gotmayonase"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
+</body>
+</html>

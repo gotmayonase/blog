@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, rails,partials,yield,content_for,layout" />
+  <meta name="description" content="Partials in Rails are a powerful tool to create DRY-er code, but, once you go beyond the basic use-cases, you can quickly find yourself frustrated. Here's how I managed to solve one problem I ran into." />
+  
+  <title>
+    Rendering a collection of partials with layouts and content_for -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" title="RSS Feed for mikemayo.org"/>
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+          <div class="twitter-button">
+            <a href="https://twitter.com/mike_mayo" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-width="100px" data-align="right">Follow @mike_mayo</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+          </div>
+        </div> <!-- end #header -->
+        <h2>Rendering a collection of partials with layouts and content_for</h2>
+        
+
+<p class="article_date date">
+  02 Feb 2012
+</p>
+
+<hr/>
+
+<div id="content">
+	<p>While working on a Rails project recently, I ran into an interesting dilemma when trying to <span class="caps">DRY</span> up a big mess of partials that I had accumulated over several months.  Below I&#8217;ll describe the scenario and show a way to get around some of the limitations in default Rails partial rendering.</p>
+<h3>The Problem:</h3>
+<p>You have several partials in your Rails project that are nearly identical, and you&#8217;re sick of all this un-<span class="caps">DRY</span> code laying around. Some (or all) of these partials can be loaded multiple times on a single page via a collection of objects. Never fear, Rails has a solution for you (sort of)!</p>
+<h4>Did you know:</h4>
+<p>Partials can be <a href="http://guides.rubyonrails.org/layouts_and_rendering.html#using-partials">rendered with a layout</a>? I know, my mind was blown too! The only caveat I&#8217;ve found is that the layout file needs to be in the same directory as the partial, as opposed to the layouts directory, though I&#8217;m not sure if this is a hard rule or just the default behavior.</p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="o">&lt;</span><span class="sx">%= render :partial =</span><span class="o">&gt;</span> <span class="s1">'my_partial_file'</span><span class="p">,</span> <span class="ss">:layout</span> <span class="o">=&gt;</span> <span class="s1">'my_layout_file'</span> <span class="o">%&gt;</span></code></pre></figure><p>Another fun fact, you can call:</p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="o">&lt;</span><span class="sx">%= render :partial =</span><span class="o">&gt;</span> <span class="s1">'my_partial_file'</span><span class="p">,</span> <span class="ss">:collection</span> <span class="o">=&gt;</span> <span class="vi">@my_collection_of_objects</span> <span class="o">%&gt;</span></code></pre></figure><p>or if the objects in your collection have a class name that matches your partial name:</p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="o">&lt;</span><span class="sx">%= render @my_collection_of_objects %&gt;</span></code></pre></figure><p>and Rails will render each of those objects into the partial.  Supposedly this is faster than looping over the objects and rendering manually, since Rails only has to lookup the partial once. One downside is that you can&#8217;t (as far as I can tell) also pass a layout to this method call.</p>
+<p>Anyways on to solving the problem at hand&#8230;</p>
+<h3>The Solution:</h3>
+<p>The most obvious solution to <span class="caps">DRY</span> up similar partials is to use the layout parameter and move all your repetitive markup to a layout view. Sometimes things don&#8217;t get to be that simple, though. If, for instance, you want to have a named yield inside your partial layout, you&#8217;ll quickly find yourself frustrated. Here&#8217;s an example:</p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># _layout.html.erb</span>
+<span class="o">&lt;</span><span class="nb">p</span> <span class="nb">id</span><span class="o">=</span><span class="s2">"special_content"</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="sx">%= yield :special_content %&gt;
+&lt;/p&gt;
+&lt;div id=</span><span class="s2">"content"</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="sx">%= yield %&gt;
+&lt;/div&gt;
+
+# _partial.html.erb
+&lt;% content_for :special_content, 'This is very special' %&gt;
+&lt;p&gt;This is not so special&lt;/p&gt;</span></code></pre></figure><p>For some reason, named yields inside partial layouts don&#8217;t behave correctly. Instead of your expected output, you&#8217;ll end up with:</p>
+<figure class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;p</span> <span class="na">id=</span><span class="s">"special_content"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;p&gt;</span>This is not so special<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"content"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;p&gt;</span>This is not so special<span class="nt">&lt;/p&gt;</span>
+<span class="nt">&lt;/div&gt;</span></code></pre></figure><p>After digging around in the code, I found that you can call <code>content_for</code> in the place of <code>yield</code> with only the name argument and achieve similar results, however this has another issue which will require a little backstory to explain.</p>
+<p>The content for views is handled by what Rails calls a <code>ViewFlow</code>. It exposes methods for a <code>content</code> hash, and <code>yield</code> and <code>content_for</code> subsequently use those methods to access and populate the content. However when you access that content, it&#8217;s not destructive; it never removes the content from that hash. This causes a problem if you&#8217;re using <code>content_for</code> in a loop, because every call you&#8217;re just tacking more content onto the same hash key.</p>
+<p>What you really need for the above scenario is a way to, when accessing the content from the <code>ViewFlow</code>, remove it from that hash so you have a clean slate on the next iteration. This is actually trivial to accomplish because the <code>ViewFlow</code>, and therefore it&#8217;s <code>content</code> hash, are available in the view. Just add a method like this to your <code>ApplicationHelper</code> and use it in place of your normal named yields:</p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">yield_content!</span><span class="p">(</span><span class="n">content_key</span><span class="p">)</span>
+  <span class="n">view_flow</span><span class="p">.</span><span class="nf">content</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="n">content_key</span><span class="p">)</span>
+<span class="k">end</span></code></pre></figure><p>Now when looping through your collection and rendering your partials, your content should render as expected. My next goal is to get layouts behaving with rendering partials using the <code>:collection</code> param, though I think I may have different behavior expectations than the Rails designers do on that topic.</p>
+</div>
+
+<span class="article_buttons">
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+  <a class="hackernews" href="javascript:window.location=%22http://news.ycombinator.com/submitlink?u=%22+encodeURIComponent(document.location)+%22&t=%22+encodeURIComponent(document.title)">
+    <span class="balloon">hacker news!</span> <img src="/images/hn.png"/>
+  </a>
+  <br />
+  <div style="margin-top: 3px">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-via="mike_mayo" data-related="mike_mayo" data-align="right">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  var disqus_shortname = 'mikemayoblog';
+  var disqus_identifier = '/2012/rendering-a-collection-of-partials-with-content_for';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <!-- <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div> -->
+        <!-- You also need to place a container where you'd like the Coderwall badges to render. -->
+        <section class="coderwall" data-coderwall-username="gotmayonase" data-coderwall-orientation="vertical"></section>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+  <a href="http://github.com/gotmayonase"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
+</body>
+</html>

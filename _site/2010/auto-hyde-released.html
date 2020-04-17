@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, autohyde,auto-hyde,jekyll,ruby" />
+  <meta name="description" content="If you were looking for an easy way to rebuild your Jekyll site after a push to GitHub, here it is." />
+  
+  <title>
+    AutoHyde 0.1.1 Released -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" title="RSS Feed for mikemayo.org"/>
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+          <div class="twitter-button">
+            <a href="https://twitter.com/mike_mayo" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-width="100px" data-align="right">Follow @mike_mayo</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+          </div>
+        </div> <!-- end #header -->
+        <h2>AutoHyde 0.1.1 Released</h2>
+        
+
+<p class="article_date date">
+  10 Dec 2010
+</p>
+
+<hr/>
+
+<div id="content">
+	<p>With the launch of this blog, I&#8217;ve recently come to enjoy the wonder that is <a href="https://github.com/mojombo/jekyll">Jekyll</a>.  For those unfamiliar, it&#8217;s a dead-simple, blog-aware, static site generator built with Ruby, and is even used by GitHub for their Pages.</p>
+<p>My only complaint has been with automating the site regeneration and deployment.  I wanted a way to easily integrate it with GitHub&#8217;s post-receive hooks so that the site is pulled and regenerated on my server after any code is pushed.</p>
+<p>AutoHyde makes that all possible.  Once installed, all you need to do is run the executable (with appropriate options) and it will start up a lightweight Sinatra server with a single route, &#8216;/auto-hyde.&#8217;  Then just point your GitHub post-receive hook at <code>http://your-server.com/auto-hyde</code> and you&#8217;re ready to go.</p>
+<p>Here is a list of the options available from the command-line:</p>
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">  $</span><span class="w"> </span>auto-hyde <span class="nt">-h</span>
+<span class="go">  Usage: auto-hyde [options]
+    -e, --email EMAIL     Send email notification of failures to this email address
+    -d, --jekyll-dir DIR  Location of your Jekyll project directory, defaults to this dir
+    -b, --build-dir DIR   Location Jekyll will build your site to, defaults to './_site'
+    -p, --port PORT       Port for Sinatra to run on, defaults to 4567
+        --pygments        Turn on Pygment syntax highlighting for Jekyll, defaults to off
+    -h, --help            Show this message</span></code></pre></figure><p>The most important options are <code>-j</code> and <code>-b</code>, your Jekyll blog directory and the directory you want the site generated in respectively.  When the route is hit, it will <code>cd</code> into your blog dir, <code>git pull</code>, and then use the <code>jekyll</code> command line to regenerate the site.</p>
+<p>The gem is already available via Gemcutter/Rubygems, just run:</p>
+<figure class="highlight"><pre><code class="language-console" data-lang="console"><span class="gp">  $</span><span class="w"> </span>gem <span class="nb">install </span>auto-hyde</code></pre></figure><p>If you&#8217;re interested, the code is also up on my <a href="https://github.com/gotmayonase/auto-hyde">GitHub repo</a>.  I must admit that I haven&#8217;t tested the email functionality yet (it uses Pony), as my <span class="caps">ISP</span> won&#8217;t allow <span class="caps">SMTP</span> out.  So if anyone notices a bug there, or anywhere else, please let me know.</p>
+</div>
+
+<span class="article_buttons">
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+  <a class="hackernews" href="javascript:window.location=%22http://news.ycombinator.com/submitlink?u=%22+encodeURIComponent(document.location)+%22&t=%22+encodeURIComponent(document.title)">
+    <span class="balloon">hacker news!</span> <img src="/images/hn.png"/>
+  </a>
+  <br />
+  <div style="margin-top: 3px">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-via="mike_mayo" data-related="mike_mayo" data-align="right">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  var disqus_shortname = 'mikemayoblog';
+  var disqus_identifier = '/2010/auto-hyde-released';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <!-- <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div> -->
+        <!-- You also need to place a container where you'd like the Coderwall badges to render. -->
+        <section class="coderwall" data-coderwall-username="gotmayonase" data-coderwall-orientation="vertical"></section>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+  <a href="http://github.com/gotmayonase"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
+</body>
+</html>

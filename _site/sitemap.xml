@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <url>
+      <loc>http://mikemayo.org/</loc>
+      <lastmod>2020-04-17</lastmod>
+      <changefreq>daily</changefreq>
+      <priority>1</priority>
+   </url>
+   <url>
+      <loc>http://mikemayo.org/projects/</loc>
+      <lastmod>2020-04-17</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.8</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2020/thoughts-on-activerecord-callbacks/</loc>
+      <lastmod>2020-04-15</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2012/deploying-jekyll-sites-to-heroku-with-rack-jekyll/</loc>
+      <lastmod>2012-02-08</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2012/how-i-learned-to-stop-worrying-and-love-rest/</loc>
+      <lastmod>2012-02-04</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2012/rendering-a-collection-of-partials-with-content_for/</loc>
+      <lastmod>2012-02-02</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2011/using-decorators-to-improve-inherited-resources/</loc>
+      <lastmod>2011-12-22</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2011/auto-cached-rake-routes-and-auto-annotated-models/</loc>
+      <lastmod>2011-12-14</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/auto-hyde-released/</loc>
+      <lastmod>2010-12-10</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/node-js-socket-io-and-buffer-quirks/</loc>
+      <lastmod>2010-12-09</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/minitest-events/</loc>
+      <lastmod>2010-12-05</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+   <url>
+      <loc>http://mikemayo.org/2010/minitest-progressbar/</loc>
+      <lastmod>2010-11-19</lastmod>
+      <changefreq>weekly</changefreq>
+      <priority>0.9</priority>
+   </url>
+
+</urlset>

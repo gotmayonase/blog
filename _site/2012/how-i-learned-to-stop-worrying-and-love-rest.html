@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="google-site-verification" content="bHeMePUL_gILh9s3NFMaeYXRhd2-_POiFpUcFt1y4Pk" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=550, maximum-scale=1.0" />
+  <meta name="keywords" content="mike mayo, mikemayo, REST, rails, ios" />
+  <meta name="description" content="Though it might be one of the most abused terms in web development today, learning and using REST correctly can make life much easier for you." />
+  
+  <meta property="og:image" content="/images/rest_strangelove_small.jpg"/>
+  
+  <title>
+    How I learned to stop worrying and love REST -  Mike Mayo
+  </title>
+  <link rel="stylesheet" href="/css/reset.css" type="text/css" />
+  
+  <link rel="stylesheet" href="/css/screen.css" type="text/css" />
+  <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="/css/iphone.css" type="text/css" />
+  <link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="/css/ipad.css" type="text/css" />
+  <link href="http://coderwall.com/stylesheets/jquery.coderwall.css" media="all" rel="stylesheet" type="text/css" />
+  <link rel="alternate" type="application/atom+xml" href="http://feeds.feedburner.com/mikemayo" title="RSS Feed for mikemayo.org"/>
+  <link href="/images/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+  <link href="/images/icon.jpg" rel="apple-touch-icon" />
+  <script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-20085238-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div id="wrapper">
+    <div id="inner">
+      <div id="container">
+        <div id="header">
+          <h1>
+            
+              <a href="/">&larr; Mike Mayo</a>
+            
+          </h1>
+          <ul>
+            <li>
+              <a href="/projects">Projects</a>
+            </li>
+            <li>
+              <a href="/contact">Contact</a>
+            </li>
+            <li>
+              <a href="/resume.html">Resume</a>
+            </li>
+          </ul>
+          <hr class="right"/>
+          <div class="twitter-button">
+            <a href="https://twitter.com/mike_mayo" class="twitter-follow-button" data-show-count="false" data-show-screen-name="false" data-width="100px" data-align="right">Follow @mike_mayo</a>
+            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+          </div>
+        </div> <!-- end #header -->
+        <h2>How I learned to stop worrying and love REST</h2>
+        
+
+<p class="article_date date">
+  04 Feb 2012
+</p>
+
+<hr/>
+
+<div id="content">
+	<p><img src="/images/rest_strangelove.jpg" /></p>
+<p>Buzzwords can be a funny thing. I&#8217;ve been writing (what I thought were) &#8216;RESTful&#8217; web apps and APIs for five years now, and it wasn&#8217;t until a couple of weeks ago that I really began to understand what that meant. I&#8217;d like to share my &#8216;<span class="caps">AHA</span>&#8217; moment, and give a concrete example of why following the <a href="http://en.wikipedia.org/wiki/Representational_state_transfer"><span class="caps">REST</span></a> style correctly can save you headaches in the long run.</p>
+<div id="tldr">
+<p><em>TL;DR: A RESTful <span class="caps">API</span> should provide hypertext links to drive traversal through itself, instead of forcing the client to craft their own URIs.</em></p>
+</div>
+<p>Many have complained about the font on my site, but I personally like it. If you&#8217;re having trouble with it though, just click <a href="javascript:void(0)" id="font-changer">here</a>.</p>
+<h3>A little backstory</h3>
+<p>At <a href="http://www.twinenginelabs.com">Twin Engine Labs</a>, we develop iOS apps that are generally backed by Rails <span class="caps">REST</span> APIs. We&#8217;ve been doing this for a little over a year now, and are constantly refining our process. A few weeks ago I built my first iOS app (which got approved this week) as well as the <span class="caps">JSON</span> <span class="caps">API</span> backend for it. I take a lot of pride in my code, and I have to say I was quite pleased with how everything turned out. The project felt clean, things were refactored as I felt they needed to be, and nothing was overly complex or ugly.  However, at the end of the project lifecycle, I started looking to increase performance by adding basic Rails caching where it was appropriate, and things took an unhappy turn.</p>
+<p>At this point, the iOS app was complete and had been submitted to the app store. If you&#8217;ve ever gone through this process, you know the delays can be&#8230;annoying, and resubmitting is essentially out of the question if you have a deadline to worry about. None of this should have been a problem, since the <span class="caps">API</span> was frozen and I was just making internal performance changes, but then I started looking at caching one of the main actions of the application.</p>
+<p>It&#8217;s a fairly simple index action that returns a list of <span class="caps">JSON</span> objects, but the rub comes in that it&#8217;s paginated. This action is consumed by a TableView that has infinite scrolling on it, so we only load 25 at a time to make things snappier on the iPhone. We handle all of our pagination using the wonderful <a href="https://github.com/mislav/will_paginate">will_paginate</a> gem, where page information is passed as query params like: <code>www.myapi.com/index_action?page=1&amp;per_page=25</code>. Unfortunately default Rails page caching doesn&#8217;t store query params, so you&#8217;ll always cache the first page a user hits. The <a href="http://guides.rubyonrails.org/caching_with_rails.html#page-caching">suggested means of dealing with this</a> is to, instead of using query params, pass your pagination params through the <span class="caps">URI</span>, transforming the above example to this: <code>www.myapi.com/index_action/page/1/per_page/25</code>.</p>
+<p>This would be trivial to implement on the Rails side, but since my iOS application was crafting these paginated URIs it would mean a change to the iOS code and a resubmission to the app store.  The action was fast enough that I moved caching it to a lower priority, but it ate at me that I hadn&#8217;t known about the pitfall earlier.</p>
+<h3>The <span class="caps">AHA</span> moment</h3>
+<p>It wasn&#8217;t until several weeks later that I came upon the perfect solution to my problem&#8230;at least it would have been had I used it from the beginning as I should have.</p>
+<p>I&#8217;ve got about a 30 minute bike commute every morning, and I find the best use of that time is to listen to tech podcasts. More specifically I&#8217;ve been listening to the <a href="http://www.rubyrogues.com">Ruby Rogues</a> podcast for the past few weeks; catching up on the backlog as well as keeping up with the latest episodes as they come out. Recently I listened to the <a href="http://rubyrogues.com/rest-done-right-with-steve-klabnik/"><span class="caps">REST</span> Done Right</a> episode where they had Steve Klabnik on as a guest panelist. If you follow Steve on <a href="https://twitter.com/#!/steveklabnik">twitter</a> or read his <a href="http://blog.steveklabnik.com/">blog</a>, you&#8217;ll know he&#8217;s a big proponent of <span class="caps">REST</span> and does a lot to educate developers on its proper usage.</p>
+<p>In that podcast they mentioned that one of the core points of <span class="caps">REST</span> is that the resources should provide the means to traverse the <span class="caps">API</span>. Think of it like links on a webpage; we don&#8217;t expect the user to know our <span class="caps">URL</span> format and manually type it in when they want to view the next link. Instead we provide them hyperlinks so they can easily traverse our sites. A <span class="caps">REST</span> <span class="caps">API</span> should function the same way; when you provide someone a list of <span class="caps">JSON</span> objects, you should also provide the <span class="caps">URI</span> to access each of those objects, or, in the case of my pagination example, the <span class="caps">URI</span> to retrieve the next page of results. To quote Roy Fielding:</p>
+<blockquote>
+<p>A <span class="caps">REST</span> <span class="caps">API</span> should be entered with no prior knowledge beyond the initial <span class="caps">URI</span> (bookmark) and set of standardized media types that are appropriate for the intended audience (i.e., expected to be understood by any client that might use the <span class="caps">API</span>). From that point on, all application state transitions must be driven by client selection of server-provided choices that are present in the received representations or implied by the user’s manipulation of those representations. <sup><a href="#footnote1">1</a></sup></p>
+</blockquote>
+<p>Steve Klabnik also talks about this very issue in his wonderful article titled <a href="http://timelessrepo.com/haters-gonna-hateoas">Haters gonna <span class="caps">HATEOAS</span></a>.  (<span class="caps">HATEOAS</span> stands for &#8216;Hypertext As The Engine Of Application State&#8217; and refers to using hypertext to direct an <span class="caps">API</span> consumer through the application).  You should definitely read his article to get a great explanation of how it should work and how/why most people aren&#8217;t currently doing it.</p>
+<p>So while listening to this podcast, somewhere on the bike path between the office and home, it hit me: Instead of crafting the paginated <span class="caps">URI</span> in my iOS client, I should have been crafting that <span class="caps">URI</span> on the Rails side and sending it through along with my list of <span class="caps">JSON</span> objects. I&#8217;d actually dealt with this exact format on the iOS side when I was consuming the Facebook search <span class="caps">API</span>. Here is an example of how the Facebook Graph <span class="caps">API</span> handles pagination:</p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1">#http://graph.facebook.com/search?type=Page&amp;q=dcuocentral</span>
+<span class="p">{</span>
+  <span class="s2">"data"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"DCUO Central"</span><span class="p">,</span>
+      <span class="s2">"category"</span><span class="p">:</span> <span class="s2">"Website"</span><span class="p">,</span>
+      <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"141968085865824"</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">"paging"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">"next"</span><span class="p">:</span> <span class="s2">"http://graph.facebook.com/search?type=Page&amp;q=dcuocentral&amp;limit=25&amp;offset=25"</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure><p>All you have to do is pluck the <code>paging</code> key out of the <span class="caps">JSON</span> and hit that <span class="caps">URI</span> for your next page (though they annoyingly provide that <span class="caps">URI</span> even if there are no more records to be returned).</p>
+<p>By following the <span class="caps">REST</span> style, I would have saved myself either <em>A)</em> having to alter my iOS code and resubmit to the store, or <em>B)</em> time spent researching alternate caching methods and implementing them in Rails. As it stands, my partially-RESTful <span class="caps">API</span> is going to cost me (and possibly the client) more time before we can call the project finished.</p>
+<p>All of that said, I think that Rails does an amazing job of making it easy to implement <span class="caps">REST</span>. I&#8217;ve been doing a large part of it without even really understanding it. I&#8217;m not sure how well it works when you want to go all the way, but that&#8217;s something I intend to explore as I learn more about <span class="caps">REST</span> and build APIs in the months to come. I&#8217;m also eagerly awaiting Steve Klabnik&#8217;s book <a href="http://getsomere.st/">Get Some Rest</a>, which looks to be a great resource on developing RESTful applications in Rails as well as explaining the details of <span class="caps">REST</span> in a more approachable way.</p>
+<div id="post_footer">
+<h4>Footnotes</h4>
+<ol>
+	<li id="footnote1"><a href="http://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven"><span class="caps">REST</span> APIs must be hypertext-driven</a>, Roy Fielding<br />
+</div></li>
+</ol>
+</div>
+
+<span class="article_buttons">
+  <a href="http://feeds.feedburner.com/mikemayo">
+    <span class="balloon">subscribe!</span> <img src="/images/rss.png"/>
+  </a>
+  <a class="reddit" href="http://www.reddit.com/submit" onclick="window.location = 'http://www.reddit.com/submit?url=' + encodeURIComponent(window.location); return false">
+    <span class="balloon">reddit!</span> <img src="/images/reddit.png"/>
+  </a>
+  <a class="hackernews" href="javascript:window.location=%22http://news.ycombinator.com/submitlink?u=%22+encodeURIComponent(document.location)+%22&t=%22+encodeURIComponent(document.title)">
+    <span class="balloon">hacker news!</span> <img src="/images/hn.png"/>
+  </a>
+  <br />
+  <div style="margin-top: 3px">
+  <a href="https://twitter.com/share" class="twitter-share-button" data-via="mike_mayo" data-related="mike_mayo" data-align="right">Tweet</a>
+  <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+  </div>
+</span>
+
+<hr/>
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  var disqus_shortname = 'mikemayoblog';
+  var disqus_identifier = '/2012/how-i-learned-to-stop-worrying-and-love-rest';
+
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+      </div> <!-- end #container -->
+
+      <div id="ads">
+        <!-- <div class="ad" id="promotejs">
+          <a href='https://developer.mozilla.org/en/JavaScript' title='Learn JS'>
+            <img src='http://static.jsconf.us/promotejsv.gif' height='280' width='160' alt='JS Function .arguments'/>
+          </a>
+        </div> -->
+        <!-- You also need to place a container where you'd like the Coderwall badges to render. -->
+        <section class="coderwall" data-coderwall-username="gotmayonase" data-coderwall-orientation="vertical"></section>
+      </div> <!-- end #ads -->
+      
+      <div id="footer">
+        <p>
+          Blog design by <a href="http://jeffkreeftmeijer.com/">Jeff Kreeftmeijer</a>
+        </p>
+      </div> <!-- end #footer -->
+      
+    </div> <!-- end #inner -->
+  </div> <!-- end #wrapper -->
+  <a href="http://github.com/gotmayonase"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_darkblue_121621.png" alt="Fork me on GitHub"></a>
+  <script src="/js/jquery.js" type="text/javascript"></script>
+  <script src="http://coderwall.com/javascripts/jquery.coderwall.js"></script>
+  <script type="text/javascript">
+    $(function(){
+      $('#font-changer').click(function(){
+        $('#content, h1, h2, h3, h4').css('font-family', 'Comic Sans MS');
+      })
+    })
+  </script>
+</body>
+</html>
