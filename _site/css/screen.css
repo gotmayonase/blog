@@ -1,6 +1,15 @@
-@import url(http://fonts.googleapis.com/css?family=Inconsolata&subset=latin);
-@import url(http://fonts.googleapis.com/css?family=Lobster&subset=latin);
-@import url(http://fonts.googleapis.com/css?family=Cuprum&subset=latin);
+@font-face {
+  font-family: 'Lobster';
+  src: url('/fonts/Lobster-Regular.ttf');
+}
+@font-face {
+  font-family: 'Cuprum';
+  src: url('/fonts/Cuprum-Regular.ttf');
+}
+@font-face {
+  font-family: 'Inconsolata';
+  src: url('/fonts/Inconsolata-Regular.ttf');
+}
 
 html
 {
