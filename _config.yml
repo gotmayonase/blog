@@ -1,2 +1,3 @@
+plugins: [jekyll-paginate, jekyll-textile-converter]
 permalink: /:year/:title
 paginate: 5
